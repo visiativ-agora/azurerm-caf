@@ -1,14 +1,15 @@
 resource "azurerm_mssql_server" "mssql" {
-  name                          = azurecaf_name.mssql.result
-  resource_group_name           = local.resource_group_name
-  location                      = local.location
-  version                       = try(var.settings.version, "12.0")
-  administrator_login           = try(var.settings.azuread_administrator.azuread_authentication_only, false) == true ? null : var.settings.administrator_login
-  administrator_login_password  = try(var.settings.azuread_administrator.azuread_authentication_only, false) == true ? null : try(var.settings.administrator_login_password, azurerm_key_vault_secret.sql_admin_password[0].value)
-  public_network_access_enabled = try(var.settings.public_network_access_enabled, false)
-  connection_policy             = try(var.settings.connection_policy, null)
-  minimum_tls_version           = try(var.settings.minimum_tls_version, "1.2")
-  tags                          = local.tags
+  name                                     = azurecaf_name.mssql.result
+  resource_group_name                      = local.resource_group_name
+  location                                 = local.location
+  version                                  = try(var.settings.version, "12.0")
+  administrator_login                      = try(var.settings.azuread_administrator.azuread_authentication_only, false) == true ? null : var.settings.administrator_login
+  administrator_login_password             = try(var.settings.azuread_administrator.azuread_authentication_only, false) == true ? null : try(var.settings.administrator_login_password, azurerm_key_vault_secret.sql_admin_password[0].value)
+  public_network_access_enabled            = try(var.settings.public_network_access_enabled, false)
+  connection_policy                        = try(var.settings.connection_policy, null)
+  minimum_tls_version                      = try(var.settings.minimum_tls_version, "1.2")
+  express_vulnerability_assessment_enabled = try(var.settings.express_vulnerability_assessment_enabled, false)
+  tags                                     = local.tags
 
   dynamic "azuread_administrator" {
     for_each = can(var.settings.azuread_administrator) ? [var.settings.azuread_administrator] : []
@@ -25,9 +26,11 @@ resource "azurerm_mssql_server" "mssql" {
     for_each = can(var.settings.identity) ? [var.settings.identity] : []
 
     content {
-      type = identity.value.type
+      type         = identity.value.type
+      identity_ids = try(local.managed_identities, null)
     }
   }
+  primary_user_assigned_identity_id = try(var.managed_identities[var.client_config.landingzone_key][var.settings.identity.primary_user_assigned_identity_key].id, null)
 
 }
 
@@ -76,9 +79,8 @@ resource "azurerm_key_vault_secret" "sql_admin_password" {
   name            = can(var.settings.keyvault_secret_name) ? var.settings.keyvault_secret_name : format("%s-password", azurecaf_name.mssql.result)
   value           = random_password.sql_admin[0].result
   key_vault_id    = var.keyvault_id
-  content_type    = "text/plain"
   not_before_date = try(var.settings.administrator_login_password_not_before, null)
-  expiration_date = try(var.settings.administrator_login_password_expiration_date, timeadd(timestamp(), "2160h")) # 2160 hours = 90 days
+  expiration_date = try(var.settings.administrator_login_password_expiration_date, null) # 2160 hours = 90 days
 
   lifecycle {
     ignore_changes = [

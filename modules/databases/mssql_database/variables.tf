@@ -30,3 +30,23 @@ variable "diagnostic_profiles" {
 variable "diagnostics" {
   default = null
 }
+variable "resource_group" {
+  description = "The resource group object in which the resources will be created"
+}
+variable "resource_group_name" {}
+variable "vnets" {}
+variable "private_dns" {
+  default = {}
+}
+variable "job_private_endpoint_name" {}
+
+variable "client_config" {
+  description = "Client configuration object (see module README.md)."
+}
+variable "mssql_servers" {}
+
+variable "keyvault_id" {}
+
+variable "azuread_groups" {
+  default = null
+}

@@ -47,7 +47,7 @@ module "membership_object_id" {
     if key != "logged_in"
   }
 
-  group_object_id  = can(var.group_id) ? var.group_id : var.azuread_groups[try(var.settings.group_lz_key, var.client_config.landingzone_key)][var.group_key].object_id
+  group_object_id  = var.azuread_groups[try(var.settings.group_lz_key, var.client_config.landingzone_key)][var.group_key].object_id
   member_object_id = each.value
 }
 
@@ -58,6 +58,6 @@ module "membership_logged_in_object_id" {
     if key == "logged_in"
   }
 
-  group_object_id  = can(var.group_id) ? var.group_id : var.azuread_groups[try(var.settings.group_lz_key, var.client_config.landingzone_key)][var.group_key].object_id
+  group_object_id  = var.azuread_groups[try(var.settings.group_lz_key, var.client_config.landingzone_key)][var.group_key].object_id
   member_object_id = var.client_config.object_id
 }

@@ -19,3 +19,62 @@ module "search_service" {
 output "search_service" {
   value = module.search_service
 }
+
+
+locals {
+  shared_private_access = flatten([
+    for search_key, search_val in local.search_services.search_services : try([
+      for spa_key, spa_val in search_val.shared_private_access : {
+        search_key = search_key
+        spa_key    = spa_key
+        settings   = spa_val
+      }
+    ], [])
+  ])
+
+  target_resource_type_map = {
+    "storage"         = "Microsoft.Storage/storageAccounts"
+    "cosmosdbaccount" = "Microsoft.DocumentDB/databaseAccounts"
+  }
+
+  target_resource_api_version_map = {
+    "storage"         = "2024-01-01"
+    "cosmosdbaccount" = "2025-05-01-preview"
+  }
+}
+
+module "search_shared_private_link_service" {
+  depends_on = [module.search_service]
+  source     = "./modules/search_service/private_link"
+  for_each   = { for idx, val in local.shared_private_access : "${val.search_key}-${val.spa_key}" => val }
+
+  client_config     = local.client_config
+  global_settings   = local.global_settings
+  settings          = each.value.settings
+  search_service_id = module.search_service[each.value.search_key].id
+  target_resource_id = lookup({
+    "storage" = try(local.combined_objects_storage_accounts[
+      try(each.value.settings.target_resource.lz_key, local.client_config.landingzone_key)
+    ][each.value.settings.target_resource.key].id, null)
+    "cosmosdbaccount" = try(local.combined_objects_cosmos_dbs[
+      try(each.value.settings.target_resource.lz_key, local.client_config.landingzone_key)
+    ][each.value.settings.target_resource.key].id, null)
+  }, each.value.settings.target_resource.type, null)
+
+
+  target_resource_type = lookup(
+    local.target_resource_type_map,
+    each.value.settings.target_resource.type,
+    null
+  )
+  target_resource_api_version = lookup(
+    local.target_resource_api_version_map,
+    each.value.settings.target_resource.type,
+    null
+  )
+}
+
+
+output "search_shared_private_link_service" {
+  value = module.search_shared_private_link_service
+}

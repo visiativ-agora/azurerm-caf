@@ -41,12 +41,12 @@ locals {
     azuread_service_principals          = try(var.azuread.azuread_service_principals, {})
     azuread_service_principal_names     = try(var.azuread.azuread_service_principal_names, {})
     azuread_users                       = try(var.azuread.azuread_users, {})
+    azuread_federated_credentials       = try(var.azuread.azuread_federated_credentials, {})
   }
 
   cdn = {
     cdn_frontdoor_profiles = try(var.cdn.cdn_frontdoor_profiles, {})
   }
-
 
   client_config = var.client_config == {} ? {
     client_id               = data.azuread_client_config.current.client_id
@@ -141,6 +141,7 @@ locals {
     wvd_host_pools                         = try(var.compute.wvd_host_pools, {})
     wvd_workspaces                         = try(var.compute.wvd_workspaces, {})
     virtual_machines                       = try(var.compute.virtual_machines, {})
+    virtual_machines_replication           = try(var.compute.virtual_machines_replication, {})
     virtual_machine_scale_sets             = try(var.compute.virtual_machine_scale_sets, {})
     runbooks                               = try(var.compute.runbooks, {})
   }
@@ -180,6 +181,7 @@ locals {
     mysql_databases                    = try(var.database.mysql_databases, {})
     mysql_flexible_servers             = try(var.database.mysql_flexible_servers, {})
     postgresql_flexible_servers        = try(var.database.postgresql_flexible_servers, {})
+    postgresql_servers                 = try(var.database.postgresql_servers, {})
     synapse_workspaces                 = try(var.database.synapse_workspaces, {})
 
 
@@ -256,6 +258,9 @@ locals {
     managed_identities           = local.combined_objects_managed_identities
     resource_groups              = local.combined_objects_resource_groups
     storage_accounts             = local.combined_objects_storage_accounts
+    cognitive_services_accounts  = local.combined_objects_cognitive_services_accounts
+    search_services              = local.combined_objects_search_services
+    cosmos_dbs                   = local.combined_objects_cosmos_dbs
   }
 
   global_settings = merge({
@@ -289,6 +294,10 @@ locals {
     logic_app_workflow              = try(var.logic_app.logic_app_workflow, {})
     logic_app_standard              = try(var.logic_app.logic_app_standard, {})
   }
+
+  # cdn_frontdoor_profiles = {
+  #   cdn_frontdoor_profiles = try(var.cdn_frontdoor_profiles.cdn_frontdoor_profiles, {})
+  # }
 
   cognitive_services = {
     ai_services                            = try(var.cognitive_services.ai_services, {})
@@ -446,6 +455,7 @@ locals {
     automations                               = try(var.shared_services.automations, {})
     automation_schedules                      = try(var.shared_services.automation_schedules, {})
     automation_runbooks                       = try(var.shared_services.automation_runbooks, {})
+    automation_powershell72_module            = try(var.shared_services.automation_powershell72_module, {})
     automation_log_analytics_links            = try(var.shared_services.automation_log_analytics_links, {})
     automation_software_update_configurations = try(var.shared_services.automation_software_update_configurations, {})
     consumption_budgets                       = try(var.shared_services.consumption_budgets, {})
@@ -540,10 +550,16 @@ locals {
   maintenance = {
     maintenance_configuration              = try(var.maintenance.maintenance_configuration, {})
     maintenance_assignment_virtual_machine = try(var.maintenance.maintenance_assignment_virtual_machine, {})
+    maintenance_assignment_dynamic_scope   = try(var.maintenance.maintenance_assignment_dynamic_scope, {})
   }
 
   dashboards = {
     grafana = try(var.dashboards.grafana, {})
+  }
+
+  kubernetes_fleet_managers = {
+    fleet_managers = try(var.kubernetes_fleet_managers.fleet_managers, {})
+    fleet_members  = try(var.kubernetes_fleet_managers.fleet_members, {})
   }
 
   load_test = try(var.load_test, {})

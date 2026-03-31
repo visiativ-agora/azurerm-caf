@@ -41,10 +41,11 @@ resource "azurerm_eventgrid_system_topic" "egt" {
   topic_type = var.settings.topic_type
 
   dynamic "identity" {
-    for_each = try(var.settings.identity, null) != null ? [var.settings.identity] : []
+    for_each = try(var.identity, null) == null ? [] : [1]
+
     content {
-      type         = try(identity.value.type, null)
-      identity_ids = try(identity.value.identity_ids, null)
+      type         = var.identity.type
+      identity_ids = lower(var.identity.type) == "userassigned" ? local.managed_identities : null
     }
   }
 

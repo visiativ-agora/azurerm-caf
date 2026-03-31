@@ -5,6 +5,8 @@ variable "tags" {
 
 variable "redis" {}
 
+variable "redis_role_assignment" {}
+
 variable "subnet_id" {
   description = "The ID of the Subnet within which the Redis Cache should be deployed"
   type        = string

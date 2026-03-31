@@ -78,3 +78,9 @@ variable "virtual_subnets" {
   default     = {}
   nullable    = false
 }
+
+variable "eventgrid_topics" {
+  description = "Map of eventgrid_topics objects"
+  default     = {}
+  nullable    = false
+}

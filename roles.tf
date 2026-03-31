@@ -8,6 +8,10 @@ module "custom_roles" {
   assignable_scopes    = local.assignable_scopes[each.key]
 }
 
+output "custom_roles" {
+  value = module.custom_roles
+}
+
 #
 # Roles assignments
 #
@@ -21,9 +25,11 @@ resource "azurerm_role_assignment" "for" {
   }
 
   principal_id         = each.value.object_id_resource_type == "object_ids" ? each.value.object_id_key_resource : each.value.object_id_lz_key == null ? local.services_roles[each.value.object_id_resource_type][var.current_landingzone_key][each.value.object_id_key_resource].rbac_id : local.services_roles[each.value.object_id_resource_type][each.value.object_id_lz_key][each.value.object_id_key_resource].rbac_id
-  role_definition_id   = each.value.mode == "custom_role_mapping" ? module.custom_roles[each.value.role_definition_name].role_definition_resource_id : null
+  role_definition_id   = each.value.mode == "custom_role_mapping" ? try(local.combined_objects_custom_roles[coalesce(each.value.role_lz_key, local.client_config.landingzone_key)][each.value.role_definition_name].role_definition_resource_id, module.custom_roles[each.value.role_definition_name], null) : null
   role_definition_name = each.value.mode == "built_in_role_mapping" ? each.value.role_definition_name : null
   scope                = each.value.scope_lz_key == null ? local.services_roles[each.value.scope_resource_key][var.current_landingzone_key][each.value.scope_key_resource].id : local.services_roles[each.value.scope_resource_key][each.value.scope_lz_key][each.value.scope_key_resource].id
+  condition_version    = try(each.value.condition, null) == null ? null : "2.0"
+  condition            = try(each.value.condition, null)
 }
 
 resource "azurerm_role_assignment" "for_deferred" {
@@ -36,6 +42,8 @@ resource "azurerm_role_assignment" "for_deferred" {
   role_definition_id   = each.value.mode == "custom_role_mapping" ? module.custom_roles[each.value.role_definition_name].role_definition_resource_id : null
   role_definition_name = each.value.mode == "built_in_role_mapping" ? each.value.role_definition_name : null
   scope                = each.value.scope_lz_key == null ? local.services_roles_deferred[each.value.scope_resource_key][var.current_landingzone_key][each.value.scope_key_resource].id : local.services_roles_deferred[each.value.scope_resource_key][each.value.scope_lz_key][each.value.scope_key_resource].id
+  condition_version    = try(each.value.condition, null) == null ? null : "2.0"
+  condition            = try(each.value.condition, null)
 }
 
 resource "time_sleep" "azurerm_role_assignment_for" {
@@ -110,8 +118,10 @@ locals {
     app_config                                 = local.combined_objects_app_config
     app_service_environments                   = local.combined_objects_app_service_environments
     app_service_environments_v3                = local.combined_objects_app_service_environments_v3
+    app_service_plans                          = local.combined_objects_service_plans
     linux_web_apps                             = local.combined_objects_linux_web_apps
     windows_web_apps                           = local.combined_objects_windows_web_apps
+    function_apps                              = local.combined_objects_function_apps
     linux_function_apps                        = local.combined_objects_linux_function_apps
     windows_function_apps                      = local.combined_objects_windows_function_apps
     application_gateway_platforms              = local.combined_objects_application_gateway_platforms
@@ -128,56 +138,63 @@ locals {
     backup_vaults                              = local.combined_objects_backup_vaults
     batch_accounts                             = local.combined_objects_batch_accounts
     cognitive_services_account                 = local.combined_objects_cognitive_services_accounts
+    cosmos_dbs                                 = local.combined_objects_cosmos_dbs
     data_factory                               = local.combined_objects_data_factory
     databricks_workspaces                      = local.combined_objects_databricks_workspaces
     diagnostic_storage_accounts                = local.current_objects_diagnostic_storage_accounts
+    diagnostic_event_hub_namespaces            = local.current_objects_diagnostic_event_hub_namespaces
     dns_zones                                  = local.combined_objects_dns_zones
     event_hub_namespaces                       = local.combined_objects_event_hub_namespaces
-
-    iot_hub                           = local.combined_objects_iot_hub
-    iot_hub_dps                       = local.combined_objects_iot_hub_dps
-    keyvaults                         = local.combined_objects_keyvaults
-    kusto_clusters                    = local.combined_objects_kusto_clusters
-    log_analytics                     = local.current_objects_log_analytics
-    logged_in                         = local.logged_in
-    machine_learning_compute_instance = module.machine_learning_compute_instance
-    machine_learning_workspaces       = local.combined_objects_machine_learning
-    managed_identities                = local.combined_objects_managed_identities
-    management_group                  = local.management_groups
-    monitor_action_groups             = local.combined_objects_monitor_action_groups
-    mssql_databases                   = local.combined_objects_mssql_databases
-    mssql_elastic_pools               = local.combined_objects_mssql_elastic_pools
-    mssql_managed_databases           = local.combined_objects_mssql_managed_databases
-    mssql_managed_instances           = local.combined_objects_mssql_managed_instances
-    mssql_servers                     = local.combined_objects_mssql_servers
-    maintenance_configuration         = local.combined_objects_maintenance_configuration
-    mysql_flexible_servers            = local.combined_objects_mysql_flexible_servers
-    network_watchers                  = local.combined_objects_network_watchers
-    networking                        = local.combined_objects_networking
-    # postgresql_flexible_servers       = local.combined_objects_postgresql_flexible_servers
-    private_dns                = local.combined_objects_private_dns
-    proximity_placement_groups = local.combined_objects_proximity_placement_groups
-    public_ip_addresses        = local.combined_objects_public_ip_addresses
-    purview_accounts           = local.combined_objects_purview_accounts
-    recovery_vaults            = local.combined_objects_recovery_vaults
-    resource_groups            = local.combined_objects_resource_groups
-    route_tables               = local.combined_objects_route_tables
-    service_plans              = local.combined_objects_service_plans
-    servicebus_namespaces      = local.combined_objects_servicebus_namespaces
-    servicebus_topics          = local.combined_objects_servicebus_topics
-    storage_accounts           = local.combined_objects_storage_accounts
-    subscriptions              = local.combined_objects_subscriptions
-    synapse_workspaces         = local.combined_objects_synapse_workspaces
-    virtual_subnets            = local.combined_objects_virtual_subnets
-    wvd_application_groups     = local.combined_objects_wvd_application_groups
-    wvd_applications           = local.combined_objects_wvd_applications
-    wvd_host_pools             = local.combined_objects_wvd_host_pools
-    wvd_workspaces             = local.combined_objects_wvd_workspaces
+    iot_hub                                    = local.combined_objects_iot_hub
+    iot_hub_dps                                = local.combined_objects_iot_hub_dps
+    kubernetes_fleet_managers                  = local.combined_objects_kubernetes_fleet_managers
+    keyvaults                                  = local.combined_objects_keyvaults
+    kusto_clusters                             = local.combined_objects_kusto_clusters
+    log_analytics                              = local.current_objects_log_analytics
+    logged_in                                  = local.logged_in
+    machine_learning_compute_instance          = module.machine_learning_compute_instance
+    machine_learning_workspaces                = local.combined_objects_machine_learning
+    managed_identities                         = local.combined_objects_managed_identities
+    management_group                           = local.management_groups
+    monitor_action_groups                      = local.combined_objects_monitor_action_groups
+    mssql_databases                            = local.combined_objects_mssql_databases
+    mssql_elastic_pools                        = local.combined_objects_mssql_elastic_pools
+    mssql_managed_databases                    = local.combined_objects_mssql_managed_databases
+    mssql_managed_instances                    = local.combined_objects_mssql_managed_instances
+    mssql_servers                              = local.combined_objects_mssql_servers
+    maintenance_configuration                  = local.combined_objects_maintenance_configuration
+    mysql_flexible_servers                     = local.combined_objects_mysql_flexible_servers
+    network_watchers                           = local.combined_objects_network_watchers
+    networking                                 = local.combined_objects_networking
+    private_dns                                = local.combined_objects_private_dns
+    proximity_placement_groups                 = local.combined_objects_proximity_placement_groups
+    public_ip_addresses                        = local.combined_objects_public_ip_addresses
+    purview_accounts                           = local.combined_objects_purview_accounts
+    recovery_vaults                            = local.combined_objects_recovery_vaults
+    resource_groups                            = local.combined_objects_resource_groups
+    route_tables                               = local.combined_objects_route_tables
+    service_plans                              = local.combined_objects_service_plans
+    servicebus_namespaces                      = local.combined_objects_servicebus_namespaces
+    servicebus_queues                          = local.combined_objects_servicebus_queues
+    servicebus_topics                          = local.combined_objects_servicebus_topics
+    storage_accounts                           = local.combined_objects_storage_accounts
+    subscriptions                              = local.combined_objects_subscriptions
+    synapse_workspaces                         = local.combined_objects_synapse_workspaces
+    virtual_subnets                            = local.combined_objects_virtual_subnets
+    wvd_application_groups                     = local.combined_objects_wvd_application_groups
+    wvd_applications                           = local.combined_objects_wvd_applications
+    wvd_host_pools                             = local.combined_objects_wvd_host_pools
+    wvd_workspaces                             = local.combined_objects_wvd_workspaces
   }
 
   current_objects_log_analytics = tomap(
     {
       (var.current_landingzone_key) = merge(local.combined_objects_log_analytics, local.combined_diagnostics.log_analytics)
+    }
+  )
+  current_objects_diagnostic_event_hub_namespaces = tomap(
+    {
+      (var.current_landingzone_key) = merge(local.combined_objects_diagnostic_event_hub_namespaces, local.combined_diagnostics.event_hub_namespaces)
     }
   )
   current_objects_diagnostic_storage_accounts = tomap(
@@ -220,30 +237,32 @@ locals {
   roles_to_process = {
     for mapping in
     flatten(
-      [                                                                 # Variable
-        for key_mode, all_role_mapping in var.role_mapping : [          #  built_in_role_mapping = {
-          for key, role_mappings in all_role_mapping : [                #       aks_clusters = {
-            for scope_key_resource, role_mapping in role_mappings : [   #         seacluster = {
-              for role_definition_name, resources in role_mapping : [   #           "Azure Kubernetes Service Cluster Admin Role" = {
-                for object_id_key, object_resources in resources : [    #             azuread_group_keys = {
-                  for object_id_key_resource in object_resources.keys : #               keys = [ "aks_admins" ] ----End of variable
-                  {                                                     # "seacluster_Azure_Kubernetes_Service_Cluster_Admin_Role_aks_admins" = {
-                    mode                    = key_mode                  #   "mode" = "built_in_role_mapping"
+      [                                                                          # Variable
+        for key_mode, all_role_mapping in var.role_mapping : [                   #  built_in_role_mapping = {
+          for key, role_mappings in all_role_mapping : [                         #       aks_clusters = {
+            for scope_key_resource, role_mapping in role_mappings : [            #         seacluster = {
+              for role_definition_name, resources in role_mapping : [            #           "Azure Kubernetes Service Cluster Admin Role" = {
+                for object_id_key, object_resources in resources : [             #             azuread_group_keys = {
+                  for object_id_key_resource in try(object_resources.keys, []) : #               keys = [ "aks_admins" ] ----End of variable
+                  {                                                              # "seacluster_Azure_Kubernetes_Service_Cluster_Admin_Role_aks_admins" = {
+                    mode                    = key_mode                           #   "mode" = "built_in_role_mapping"
                     scope_resource_key      = key
                     scope_lz_key            = try(role_mapping.lz_key, null)
+                    role_lz_key             = try(resources.lz_key, null)
                     scope_key_resource      = scope_key_resource
                     role_definition_name    = role_definition_name
                     object_id_resource_type = object_id_key
-                    object_id_key_resource  = object_id_key_resource #   "object_id_key_resource" = "aks_admins"
-                    object_id_lz_key        = try(object_resources.lz_key, null)
+                    object_id_key_resource  = try(object_id_key_resource.key, object_id_key_resource) #   "object_id_key_resource" = "aks_admins"
+                    object_id_lz_key        = try(object_id_key_resource.lz_key, object_resources.lz_key, null)
+                    condition               = try(object_id_key_resource.condition, null)
                   }
                 ]
-              ] if role_definition_name != "lz_key"
+              ] if role_definition_name != "lz_key" && can(length(resources))
             ]
           ]
         ]
       ]
-    ) : format("%s_%s_%s_%s", mapping.object_id_resource_type, mapping.scope_key_resource, replace(mapping.role_definition_name, " ", "_"), mapping.object_id_key_resource) => mapping
+    ) : format("%s_%s_%s_%s_%s", mapping.object_id_resource_type, mapping.scope_key_resource, replace(mapping.role_definition_name, " ", "_"), coalesce(mapping.object_id_lz_key, local.client_config.landingzone_key), mapping.object_id_key_resource) => mapping
   }
 }
 

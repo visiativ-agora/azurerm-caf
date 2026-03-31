@@ -8,12 +8,11 @@ resource "azurerm_web_application_firewall_policy" "wafpolicy" {
   dynamic "custom_rules" {
     for_each = try(var.settings.custom_rules, {})
     content {
-      name      = custom_rules.value.name
-      priority  = custom_rules.value.priority
-      rule_type = custom_rules.value.rule_type
-      action    = custom_rules.value.action
-
-      # Rate limiting parameters (only for RateLimitRule type)
+      name                 = custom_rules.value.name
+      priority             = custom_rules.value.priority
+      rule_type            = custom_rules.value.rule_type
+      action               = custom_rules.value.action
+      enabled              = try(custom_rules.value.enabled, null)
       rate_limit_duration  = try(custom_rules.value.rate_limit_duration, null)
       rate_limit_threshold = try(custom_rules.value.rate_limit_threshold, null)
       group_rate_limit_by  = try(custom_rules.value.group_rate_limit_by, null)
@@ -41,11 +40,12 @@ resource "azurerm_web_application_firewall_policy" "wafpolicy" {
   dynamic "policy_settings" {
     for_each = try(var.settings.policy_settings, {}) != {} ? [1] : []
     content {
-      enabled                     = try(var.settings.policy_settings.enabled, null)
-      mode                        = try(var.settings.policy_settings.mode, null)
-      file_upload_limit_in_mb     = try(var.settings.policy_settings.file_upload_limit_in_mb, null)
-      request_body_check          = try(var.settings.policy_settings.request_body_check, null)
-      max_request_body_size_in_kb = try(var.settings.policy_settings.max_request_body_size_in_kb, null)
+      enabled                                   = try(var.settings.policy_settings.enabled, null)
+      mode                                      = try(var.settings.policy_settings.mode, null)
+      file_upload_limit_in_mb                   = try(var.settings.policy_settings.file_upload_limit_in_mb, null)
+      request_body_check                        = try(var.settings.policy_settings.request_body_check, null)
+      max_request_body_size_in_kb               = try(var.settings.policy_settings.max_request_body_size_in_kb, null)
+      js_challenge_cookie_expiration_in_minutes = try(var.settings.policy_settings.js_challenge_cookie_expiration_in_minutes, null)
     }
   }
 
@@ -60,16 +60,15 @@ resource "azurerm_web_application_firewall_policy" "wafpolicy" {
           selector_match_operator = exclusion.value.selector_match_operator
 
           dynamic "excluded_rule_set" {
-            for_each = try(exclusion.value.excluded_rule_set, {}) != {} ? [1] : []
+            for_each = try(exclusion.value.excluded_rule_set, [])
             content {
               type    = try(exclusion.value.excluded_rule_set.type, "OWASP")
               version = try(exclusion.value.excluded_rule_set.version, "3.2")
-
               dynamic "rule_group" {
-                for_each = try(exclusion.value.excluded_rule_set.rule_groups, {})
+                for_each = try([for k, v in excluded_rule_set.value.rule_groups : v], [])
                 content {
                   rule_group_name = rule_group.value.rule_group_name
-                  excluded_rules  = try(rule_group.value.excluded_rules, [])
+                  excluded_rules  = rule_group.value.excluded_rules
                 }
               }
             }
@@ -88,16 +87,12 @@ resource "azurerm_web_application_firewall_policy" "wafpolicy" {
             for_each = try(managed_rule_set.value.rule_group_override, {})
             content {
               rule_group_name = rule_group_override.value.rule_group_name
-              #The rule block supports the following:
-              #id - (Required) Identifier for the managed rule.
-              #enabled - (Optional) Describes if the managed rule is in enabled state or disabled state. Defaults to false.
-              #action - (Optional) Describes the override action to be applied when rule matches. Possible values are Allow, AnomalyScoring, Block, JSChallenge and Log. JSChallenge is only valid for rulesets of type Microsoft_BotManagerRuleSet.
               dynamic "rule" {
-                for_each = try(rule_group_override.value.rules, {})
+                for_each = try(rule_group_override.value.rule, {})
                 content {
                   id      = rule.value.id
-                  enabled = try(rule.value.enabled, false)
-                  action  = try(rule.value.action, null)
+                  enabled = try(rule.value.enabled, null)
+                  action  = try(rule.value.action, null) # Possible values are Allow, AnomalyScoring, Block, JSChallenge and Log. JSChallenge is only valid for rulesets of type Microsoft_BotManagerRuleSet.
                 }
               }
             }

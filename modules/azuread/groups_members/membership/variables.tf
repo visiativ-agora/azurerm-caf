@@ -23,7 +23,6 @@ variable "managed_identities" {
 
 variable "members" {
   description = "A map of members."
-  type        = map(any)
   default     = {}
 }
 

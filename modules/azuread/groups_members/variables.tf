@@ -3,11 +3,6 @@ variable "settings" {
   type        = any
 }
 
-variable "group_id" {
-  description = "The ID of the group."
-  type        = string
-  default     = null
-}
 
 variable "group_object_id" {
   description = "The object ID of the group."

@@ -6,4 +6,5 @@ resource "azurerm_security_center_storage_defender" "defender" {
   malware_scanning_on_upload_enabled          = try(var.storage_account.defender.malware_scanning_on_upload, null)
   malware_scanning_on_upload_cap_gb_per_month = try(var.storage_account.defender.malware_scanning_on_upload_cap_gb_per_month, null)
   sensitive_data_discovery_enabled            = try(var.storage_account.defender.sensitive_data_discovery_enabled, null)
+  scan_results_event_grid_topic_id            = try(var.storage_account.defender.scan_results_event_grid_topic_id, try(var.eventgrid_topics[try(var.storage_account.defender.scan_results_event_grid_topic.lz_key, var.client_config.landingzone_key)][try(var.storage_account.defender.scan_results_event_grid_topic_key, var.storage_account.defender.scan_results_event_grid_topic.key)].id, null))
 }

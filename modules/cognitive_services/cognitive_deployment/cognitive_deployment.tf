@@ -23,7 +23,7 @@ resource "azurerm_cognitive_deployment" "service" {
     family   = try(var.settings.sku.family, null)
     capacity = try(var.settings.sku.capacity, 1)
   }
-
-  rai_policy_name        = try(var.settings.rai_policy_name, null)
-  version_upgrade_option = try(var.settings.version_upgrade_option, null)
+  dynamic_throttling_enabled = try(var.settings.dynamic_throttling_enabled, null)
+  rai_policy_name            = try(var.settings.rai_policy_name, null)
+  version_upgrade_option     = try(var.settings.version_upgrade_option, null)
 }

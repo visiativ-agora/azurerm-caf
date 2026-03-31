@@ -53,3 +53,4 @@ output "firewall_policies" {
 output "custom_domain_associations" {
   value = module.custom_domain_associations
 }
+

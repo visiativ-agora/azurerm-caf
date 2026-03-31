@@ -13,6 +13,7 @@ resource "azurerm_linux_function_app" "linux_function_app" {
   )
   site_config {
     always_on          = try(var.settings.site_config.always_on, null)
+    http2_enabled      = try(var.settings.site_config.http2_enabled, null)
     api_definition_url = try(var.settings.site_config.api_definition_url, null)
     api_management_api_id = try(
       var.settings.site_config.api_management_api_id,
@@ -24,16 +25,17 @@ resource "azurerm_linux_function_app" "linux_function_app" {
     application_insights_connection_string = try(var.settings.site_config.application_insights_connection_string, null)
     application_insights_key               = try(var.settings.site_config.application_insigths_key, null)
     dynamic "application_stack" {
-      for_each = try(var.settings.site_config.application_stack, {}) != {} ? [1] : []
+      for_each = try(var.settings.site_config.application_stack, null) != null ? [1] : []
       content {
         dynamic "docker" {
-          for_each = try(var.settings.site_config.application_stack.docker, [])
+          for_each = try(var.settings.site_config.application_stack.docker, null) != null ? [var.settings.site_config.application_stack.docker] : []
+
           content {
-            registry_url      = var.settings.site_config.application_stack.docker.registry_url
-            image_name        = var.settings.site_config.application_stack.docker.image_name
-            image_tag         = var.settings.site_config.application_stack.docker.image_tag
-            registry_username = try(var.settings.site_config.application_stack.docker.registry_username, null)
-            registry_password = try(var.settings.site_config.application_stack.docker.registry_password, null)
+            registry_url      = docker.value.registry_url
+            image_name        = docker.value.image_name
+            image_tag         = docker.value.image_tag
+            registry_username = try(docker.value.registry_username, null)
+            registry_password = try(docker.value.registry_password, null)
           }
         }
         dotnet_version              = try(var.settings.site_config.application_stack.dotnet_version, null)
@@ -44,7 +46,6 @@ resource "azurerm_linux_function_app" "linux_function_app" {
         powershell_core_version     = try(var.settings.site_config.application_stack.powershell_core_version, null)
         use_custom_runtime          = try(var.settings.site_config.application_stack.use_custom_runtime, null)
       }
-
     }
     dynamic "app_service_logs" {
       for_each = try(var.settings.site_config.app_service_logs, {}) != {} ? [1] : []
@@ -382,17 +383,14 @@ resource "azurerm_linux_function_app" "linux_function_app" {
   )
 
   dynamic "storage_account" {
-    for_each = try(var.settings.storage_account, {}) != {} ? [1] : []
+    for_each = try(var.settings.site_config.storage_account, {})
     content {
-      access_key = try(
-        var.settings.storage_account.access_key,
-        var.remote_objects.storage_accounts[try(var.settings.storage_account.lz_key, var.client_config.landingzone_key)][try(var.settings.storage_account.key, var.settings.storage_account_key)].primary_access_key
-      )
-      account_name = var.settings.storage_account.account_name
-      name         = var.settings.storage_account.name
-      share_name   = var.settings.storage_account.share_name
-      type         = var.settings.storage_account.type
-      mount_path   = try(var.settings.storage_account.mount_path, null)
+      name         = storage_account.value.name
+      type         = storage_account.value.type
+      account_name = can(storage_account.value.account_name) ? storage_account.value.account_name : var.remote_objects.storage_accounts[try(storage_account.value.lz_key, var.client_config.landingzone_key)][storage_account.value.account_key].name
+      share_name   = storage_account.value.share_name
+      access_key   = can(storage_account.value.access_key) ? storage_account.value.access_key : var.remote_objects.storage_accounts[try(storage_account.value.lz_key, var.client_config.landingzone_key)][storage_account.value.account_key].primary_access_key
+      mount_path   = try(storage_account.value.mount_path, null)
     }
   }
 
@@ -404,11 +402,11 @@ resource "azurerm_linux_function_app" "linux_function_app" {
     }
   }
 
-  storage_account_access_key = try(var.settings.storage_uses_managed_identity, null) != null ? try(
+  storage_account_access_key = try(var.settings.storage_uses_managed_identity, false) ? null : try(
     var.settings.storage_account_access_key,
     var.remote_objects.storage_accounts[try(var.settings.storage_account.lz_key, var.client_config.landingzone_key)][try(var.settings.storage_account.key, var.settings.storage_account_key)].primary_access_key,
     null
-  ) : null
+  )
 
   storage_account_name = try(
     var.settings.storage_account_name,
@@ -416,8 +414,9 @@ resource "azurerm_linux_function_app" "linux_function_app" {
     null
   )
 
-  storage_uses_managed_identity = try(var.settings.storage_uses_managed_identity, null)
+  storage_uses_managed_identity = try(var.settings.storage_uses_managed_identity, false) ? true : null
   storage_key_vault_secret_id   = try(var.settings.storage_key_vault_secret_id, null)
+
 
   tags = local.tags
 
@@ -441,12 +440,11 @@ resource "azurerm_linux_function_app" "linux_function_app" {
     }
 
   }
+}
 
+data "azurerm_function_app_host_keys" "function_app_host_keys" {
+  depends_on = [azurerm_linux_function_app.linux_function_app]
 
-
-
-
-
-
-
+  name                = azurerm_linux_function_app.linux_function_app.name
+  resource_group_name = local.resource_group_name
 }

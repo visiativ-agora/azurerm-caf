@@ -145,6 +145,10 @@ variable "cdn" {
   default     = {}
 }
 
+# variable "cdn_frontdoor_profiles" {
+#   default = {}
+# }
+
 ## Cloud variables
 variable "cloud" {
   description = <<DESCRIPTION
@@ -751,9 +755,8 @@ variable "aadb2c" {
   })
   sensitive = false
   validation {
-    # Check if aadb2c_directory is null OR if all keys within each directory object are valid.
-    condition = var.aadb2c.aadb2c_directory == {} || alltrue([
-      for dir_key, dir_value in var.aadb2c.aadb2c_directory :
+    condition = alltrue([
+      for dir_key, dir_value in coalesce(var.aadb2c.aadb2c_directory, {}) :
       length(setsubtract(keys(dir_value), [
         "country_code",
         "data_residency_location",
@@ -785,4 +788,17 @@ variable "search_services" {
 variable "load_test" {
   description = "Configuration object - Load Test resources"
   default     = {}
+}
+variable "kubernetes_fleet_managers" {
+  default = {}
+}
+
+variable "recovery_plans" {
+  default = {}
+}
+variable "management_locks" {
+  default = {}
+}
+variable "mi_federated_credentials" {
+  default = {}
 }

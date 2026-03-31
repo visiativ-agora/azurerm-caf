@@ -17,6 +17,22 @@ resource "azurerm_static_web_app" "static_site" {
   sku_size = var.sku_size
   sku_tier = var.sku_tier
 
+
+  configuration_file_changes_enabled = try(var.settings.configuration_file_changes_enabled, null)
+  preview_environments_enabled       = try(var.settings.preview_environments_enabled, null)
+  public_network_access_enabled      = try(var.settings.public_network_access_enabled, null)
+
+  app_settings = try(var.settings.app_settings, null)
+
+  dynamic "basic_auth" {
+    for_each = try(var.settings.basic_auth, null) == null ? [] : [1]
+
+    content {
+      password     = var.settings.basic_auth.password
+      environments = var.settings.basic_auth.environments
+    }
+  }
+
   dynamic "identity" {
     for_each = try(var.settings.identity, null) == null ? [] : [1]
 
@@ -24,5 +40,13 @@ resource "azurerm_static_web_app" "static_site" {
       type         = var.settings.identity.type
       identity_ids = lower(var.identity.type) == "userassigned" ? local.managed_identities : null
     }
+  }
+
+  lifecycle {
+    ignore_changes = [
+      repository_branch,
+      repository_url,
+      repository_token,
+    ]
   }
 }

@@ -52,3 +52,12 @@ output "site_credential" {
 output "rbac_id" {
   value = azurerm_linux_function_app.linux_function_app.id
 }
+
+output "default_function_key" {
+  value     = data.azurerm_function_app_host_keys.function_app_host_keys.default_function_key
+  sensitive = true
+}
+output "primary_key" {
+  value     = data.azurerm_function_app_host_keys.function_app_host_keys.primary_key
+  sensitive = true
+}

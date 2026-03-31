@@ -9,6 +9,9 @@ variable "settings" {
 variable "azuread_api_permissions" {
   default = {}
 }
+variable "app_role" {
+  default = {}
+}
 variable "client_config" {
   description = "Client configuration object (see module README.md)."
   type        = any

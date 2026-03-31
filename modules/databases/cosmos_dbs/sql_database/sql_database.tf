@@ -10,10 +10,11 @@ resource "azurerm_cosmosdb_sql_database" "database" {
   name                = try(var.settings.add_rnd_num, true) == false ? var.settings.name : format("%s-%s", var.settings.name, random_integer.ri.result)
   resource_group_name = var.resource_group_name
   account_name        = var.cosmosdb_account_name
-  # Note : throughput and autoscale_settings conflict and autoscale_settings will take precedence if set
-  throughput = try(var.settings.autoscale_settings, null) != null ? null : var.settings.throughput
 
-  # Note : throughput and autoscale_settings conflict and autoscale_settings will take precedence if set
+  # Note: throughput and autoscale_settings conflict; autoscale_settings takes precedence if set
+  throughput = try(var.settings.autoscale_settings, null) != null ? null : try(var.settings.throughput, null)
+
+  # Note: throughput and autoscale_settings conflict; autoscale_settings takes precedence if set
   dynamic "autoscale_settings" {
     for_each = try(var.settings.autoscale_settings, null) != null ? [var.settings.autoscale_settings] : []
 
@@ -27,14 +28,15 @@ resource "azurerm_cosmosdb_sql_database" "database" {
 resource "azurerm_cosmosdb_sql_container" "container" {
   for_each = var.settings.containers
 
-  name                = each.value.name
-  resource_group_name = var.resource_group_name
-  account_name        = var.cosmosdb_account_name
-  database_name       = azurerm_cosmosdb_sql_database.database.name
-  partition_key_paths = each.value.partition_key_paths
-  # Note : throughput and autoscale_settings conflict and autoscale_settings will take precedence if set
-  throughput  = try(each.value.autoscale_settings, null) != null ? null : each.value.throughput
-  default_ttl = try(each.value.default_ttl, -1)
+  name                  = each.value.name
+  resource_group_name   = var.resource_group_name
+  account_name          = var.cosmosdb_account_name
+  database_name         = azurerm_cosmosdb_sql_database.database.name
+  partition_key_kind    = try(each.value.partition_key_kind, null)
+  partition_key_version = try(each.value.partition_key_version, null)
+  partition_key_paths   = try(each.value.partition_key_paths, null)
+  throughput            = try(each.value.autoscale_settings, null) != null ? null : try(each.value.throughput, null)
+  default_ttl           = try(each.value.default_ttl, -1)
 
   dynamic "unique_key" {
     for_each = try(each.value.unique_key, null) != null ? [each.value.unique_key] : []

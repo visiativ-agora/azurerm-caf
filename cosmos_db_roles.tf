@@ -50,14 +50,8 @@ resource "azurerm_cosmosdb_sql_role_assignment" "cosmos_account" {
   role_definition_id = (
     each.value.mode == "custom_role_mapping" ?
     module.cosmosdb_custom_roles[each.value.role_definition_name].id :
-    format("/subscriptions/%s/resourceGroups/%s/providers/Microsoft.DocumentDB/databaseAccounts/%s/sqlRoleDefinitions/%s",
-      local.client_config.subscription_id,
-      (
-        try(each.value.resource_group.name, null) != null || try(each.value.resource_group_name, null) != null ?
-        try(each.value.resource_group.name, each.value.resource_group_name) :
-        local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group_key, each.value.resource_group.key)].name
-      ),
-      local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group_key, each.value.resource_group.key)].name,
+    format("%s/sqlRoleDefinitions/%s",
+      local.combined_objects_cosmos_dbs[try(each.value.account.lz_key, local.client_config.landingzone_key)][try(each.value.account_key, each.value.account.key)].id,
       local.cosmosdb_built_in_roles[lower(each.value.role_definition_name)]
     )
   )
@@ -93,7 +87,7 @@ resource "azurerm_cosmosdb_sql_role_assignment" "cosmos_sql_database" {
         try(each.value.resource_group.name, each.value.resource_group_name) :
         local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group_key, each.value.resource_group.key)].name
       ),
-      local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group_key, each.value.resource_group.key)].name,
+      local.combined_objects_cosmos_dbs[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][each.value.account_key].name,
       local.cosmosdb_built_in_roles[lower(each.value.role_definition_name)]
     )
   )
@@ -187,17 +181,17 @@ locals {
                 account_lz_key          = try(account_role_mappings.lz_key, null)
                 role_definition_name    = role_definition_name
                 object_id_resource_type = object_id_key
-                object_id_key_resource  = object_id_key_resource
-                object_id_lz_key        = try(object_resources.lz_key, null)
-                resource_group          = try(object_resources.resource_group, null)
-                resource_group_name     = try(object_resources.resource_group_name, null)
-                resource_group_key      = try(object_resources.resource_group_key, null)
+                object_id_key_resource  = try(object_id_key_resource.key, object_id_key_resource) #   "object_id_key_resource" = "aks_admins"
+                object_id_lz_key        = try(object_id_key_resource.lz_key, object_resources.lz_key, null)
+                resource_group          = try(object_id_key_resource.resource_group, object_resources.resource_group, null)
+                resource_group_name     = try(object_id_key_resource.resource_group_name, object_resources.resource_group_name, null)
+                resource_group_key      = try(object_id_key_resource.resource_group_key, object_resources.resource_group_key, null)
               }
             ]
           ] if role_definition_name != "lz_key"
         ]
       ]
-    ]) : format("%s_%s_%s_%s", mapping.object_id_resource_type, mapping.account_key, replace(mapping.role_definition_name, " ", "_"), mapping.object_id_key_resource) => mapping
+    ]) : format("%s_%s_%s_%s_%s", mapping.object_id_resource_type, mapping.account_key, replace(mapping.role_definition_name, " ", "_"), coalesce(mapping.object_id_lz_key, local.client_config.landingzone_key), mapping.object_id_key_resource) => mapping
   }
 
   cosmosdb_sql_database_roles = {
@@ -213,11 +207,11 @@ locals {
                 account_lz_key          = try(db_role_mappings.lz_key, null)
                 role_definition_name    = role_definition_name
                 object_id_resource_type = object_id_key
-                object_id_key_resource  = object_id_key_resource
+                object_id_key_resource  = try(object_id_key_resource.key, object_id_key_resource)
                 object_id_lz_key        = try(object_resources.lz_key, null)
                 resource_group          = try(object_resources.resource_group, null)
                 resource_group_name     = try(object_resources.resource_group_name, null)
-                resource_group_key      = try(object_resources.resource_group_key, null)
+                resource_group_key      = try(object_id_key_resource.resource_group_key, object_resources.resource_group_key, null)
               }
             ]
           ] if !contains(["lz_key", "account_key"], role_definition_name)

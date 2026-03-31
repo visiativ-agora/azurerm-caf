@@ -41,7 +41,10 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostics" {
   }
 
   dynamic "enabled_metric" {
-    for_each = lookup(var.diagnostics.diagnostics_definition[each.value.definition_key].categories, "metric", {})
+    for_each = {
+      for key, value in try(var.diagnostics.diagnostics_definition[each.value.definition_key].categories.metric, {}) : key => value
+      if tobool(value[1]) == true
+    }
     content {
       category = enabled_metric.value[0]
       #enabled  = enabled_metric.value[1] is deprecated.

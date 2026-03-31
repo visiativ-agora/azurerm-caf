@@ -15,7 +15,9 @@ variable "resource_group" {
   description = "Resource group object to deploy the Azure resource"
   type        = any
 }
-
+variable "resource_groups" {
+  default = {}
+}
 variable "keyvaults" {
   description = "Keyvault to store the SSH public and private keys when not provided by the var.public_key_pem_file or retrieve admin username and password"
   default     = ""

@@ -11,7 +11,6 @@ variable "settings" {
 }
 variable "remote_objects" {
   description = "Remote objects configuration."
-  type        = any
   default     = {}
 }
 variable "base_tags" {

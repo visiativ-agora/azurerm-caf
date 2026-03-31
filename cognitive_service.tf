@@ -4,7 +4,7 @@ module "cognitive_services_account" {
   client_config       = local.client_config
   global_settings     = local.global_settings
   settings            = each.value
-  location            = try(each.value.location, null)
+  location            = lookup(each.value, "region", null) == null ? local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group.key, each.value.resource_group_key)].location : local.global_settings.regions[each.value.region]
   base_tags           = local.global_settings.inherit_tags
   resource_group      = local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group.key, each.value.resource_group_key)]
   resource_group_name = local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group.key, each.value.resource_group_key)].name
@@ -20,6 +20,7 @@ module "cognitive_services_account" {
     diagnostics         = local.combined_diagnostics
     resource_groups     = local.combined_objects_resource_groups
     private_dns         = local.combined_objects_private_dns
+    managed_identities  = local.combined_objects_managed_identities
   }
 }
 
@@ -42,11 +43,18 @@ output "cognitive_account_customer_managed_key" {
   value = module.cognitive_account_customer_managed_key
 }
 
+# module "cognitive_deployment" {
+#   source               = "./modules/cognitive_services/cognitive_deployment"
+#   for_each             = local.cognitive_services.cognitive_deployment
+#   settings             = each.value
+#   cognitive_account_id = can(each.value.cognitive_account_id) || can(each.value.cognitive_account.id) ? try(each.value.cognitive_account_id, each.value.cognitive_account.id) : local.combined_objects_cognitive_services_accounts[try(each.value.cognitive_account.lz_key, local.client_config.landingzone_key)][try(each.value.cognitive_account_key, each.value.cognitive_account_key.key)].id
+# }
+
 module "cognitive_deployment" {
-  source               = "./modules/cognitive_services/cognitive_deployment"
-  for_each             = local.cognitive_services.cognitive_deployment
+  source = "./modules/cognitive_services/cognitive_deployment"
+  for_each = try(local.cognitive_services.cognitive_deployment, {})
+  cognitive_account_id = can(each.value.cognitive_account_id) || can(each.value.cognitive_account.id) ? try(each.value.cognitive_account_id, each.value.cognitive_account.id) : module.cognitive_services_account[try(each.value.cognitive_account_key, each.value.cognitive_account.key)].id
   settings             = each.value
-  cognitive_account_id = can(each.value.cognitive_account_id) || can(each.value.cognitive_account.id) ? try(each.value.cognitive_account_id, each.value.cognitive_account.id) : local.combined_objects_cognitive_services_accounts[try(each.value.cognitive_account.lz_key, local.client_config.landingzone_key)][try(each.value.cognitive_account_key, each.value.cognitive_account_key.key)].id
 }
 
 output "cognitive_deployment" {

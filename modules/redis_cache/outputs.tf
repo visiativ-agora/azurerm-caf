@@ -30,6 +30,10 @@ output "secondary_connection_string" {
   value = azurerm_redis_cache.redis.secondary_connection_string
 }
 
+output "redis_url" {
+  value = local.redis_url
+}
+
 output "redis_cache" {
   value = azurerm_redis_cache.redis
 }

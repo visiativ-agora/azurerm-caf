@@ -17,7 +17,7 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes                              = var.address_prefixes
   service_endpoints                             = var.service_endpoints
   service_endpoint_policy_ids                   = local.service_endpoint_policy_ids
-  private_endpoint_network_policies             = try(var.private_endpoint_network_policies, null)
+  private_endpoint_network_policies             = coalesce(var.private_endpoint_network_policies, "Disabled")
   private_link_service_network_policies_enabled = try(var.private_link_service_network_policies_enabled, null)
   default_outbound_access_enabled               = try(var.default_outbound_access_enabled, false)
 

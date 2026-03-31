@@ -8,6 +8,7 @@ resource "azurecaf_name" "eges" {
   passthrough   = var.global_settings.passthrough
   use_slug      = var.global_settings.use_slug
 }
+
 resource "azurerm_eventgrid_system_topic_event_subscription" "eges" {
   name                          = azurecaf_name.eges.result
   resource_group_name           = can(var.settings.resource_group.name) ? var.settings.resource_group.name : var.remote_objects.resource_groups[try(var.settings.resource_group.lz_key, var.client_config.landingzone_key)][var.settings.resource_group.key].name
@@ -15,7 +16,7 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "eges" {
   eventhub_endpoint_id          = can(var.settings.eventhub.id) ? var.settings.eventhub.id : can(var.remote_objects.eventhubs[try(var.settings.eventhub.lz_key, var.client_config.landingzone_key)][var.settings.eventhub.key].id) ? var.remote_objects.eventhubs[try(var.settings.eventhub.lz_key, var.client_config.landingzone_key)][var.settings.eventhub.key].id : null
   hybrid_connection_endpoint_id = can(var.settings.hybrid_connection.id) ? var.settings.hybrid_connection.id : can(var.remote_objects.hybrid_connections[try(var.settings.hybrid_connection.lz_key, var.client_config.landingzone_key)][var.settings.hybrid_connection.key].id) ? var.remote_objects.hybrid_connections[try(var.settings.hybrid_connection.lz_key, var.client_config.landingzone_key)][var.settings.hybrid_connection.key].id : null
   service_bus_queue_endpoint_id = can(var.settings.servicebus_queues.id) ? var.settings.servicebus_queues.id : can(var.remote_objects.servicebus_queues[try(var.settings.servicebus_queues.lz_key, var.client_config.landingzone_key)][var.settings.servicebus_queues.key].id) ? var.remote_objects.servicebus_queues[try(var.settings.servicebus_queues.lz_key, var.client_config.landingzone_key)][var.settings.servicebus_queues.key].id : null
-  service_bus_topic_endpoint_id = can(var.settings.servicebus_topic.id) ? var.settings.servicebus_topic.id : can(var.remote_objects.servicebus_topic[try(var.settings.servicebus_topic.lz_key, var.client_config.landingzone_key)][var.settings.servicebus_topic.key].id) ? var.remote_objects.servicebus_topic[try(var.settings.servicebus_topic.lz_key, var.client_config.landingzone_key)][var.settings.servicebus_topic.key].id : null
+  service_bus_topic_endpoint_id = can(var.settings.servicebus_topics.id) ? var.settings.servicebus_topics.id : can(var.remote_objects.servicebus_topics[try(var.settings.servicebus_topics.lz_key, var.client_config.landingzone_key)][var.settings.servicebus_topics.key].id) ? var.remote_objects.servicebus_topics[try(var.settings.servicebus_topics.lz_key, var.client_config.landingzone_key)][var.settings.servicebus_topics.key].id : null
   expiration_time_utc           = try(var.settings.expiration_time_utc, null)
   event_delivery_schema         = try(var.settings.event_delivery_schema, null)
 
@@ -48,150 +49,161 @@ resource "azurerm_eventgrid_system_topic_event_subscription" "eges" {
   }
   included_event_types = try(var.settings.included_event_types, null)
 
+  dynamic "subject_filter" {
+    for_each = try(var.settings.subject_filter, null) != null ? [var.settings.subject_filter] : []
+    content {
+      subject_begins_with = try(subject_filter.value.subject_begins_with, null)
+      subject_ends_with   = try(subject_filter.value.subject_ends_with, null)
+      case_sensitive      = try(subject_filter.value.case_sensitive, null)
+    }
+  }
+
   dynamic "advanced_filter" {
-    for_each = try(var.settings.advanced_filter, null) != null ? [var.settings.advanced_filter] : []
+    for_each = try(var.settings.advanced_filter, [])
     content {
       dynamic "bool_equals" {
-        for_each = try(var.settings.bool_equals, null) != null ? [var.settings.bool_equals] : []
+        for_each = try(advanced_filter.value.bool_equals, [])
         content {
-          key   = try(bool_equals.value.subject_begins_with, null)
-          value = try(bool_equals.value.subject_ends_with, null)
+          key   = bool_equals.value.key
+          value = bool_equals.value.value
         }
       }
       dynamic "number_greater_than" {
-        for_each = try(var.settings.number_greater_than, null) != null ? [var.settings.number_greater_than] : []
+        for_each = try(advanced_filter.value.number_greater_than, [])
         content {
-          key   = try(number_greater_than.value.subject_begins_with, null)
-          value = try(number_greater_than.value.subject_ends_with, null)
-
+          key   = number_greater_than.value.key
+          value = number_greater_than.value.value
         }
       }
       dynamic "number_greater_than_or_equals" {
-        for_each = try(var.settings.number_greater_than_or_equals, null) != null ? [var.settings.number_greater_than_or_equals] : []
+        for_each = try(advanced_filter.value.number_greater_than_or_equals, [])
         content {
-          key   = try(number_greater_than_or_equals.value.subject_begins_with, null)
-          value = try(number_greater_than_or_equals.value.subject_ends_with, null)
+          key   = number_greater_than_or_equals.value.key
+          value = number_greater_than_or_equals.value.value
         }
       }
       dynamic "number_less_than" {
-        for_each = try(var.settings.number_less_than, null) != null ? [var.settings.number_less_than] : []
+        for_each = try(advanced_filter.value.number_less_than, [])
         content {
-          key   = try(number_less_than.value.subject_begins_with, null)
-          value = try(number_less_than.value.subject_ends_with, null)
+          key   = number_less_than.value.key
+          value = number_less_than.value.value
         }
       }
       dynamic "number_less_than_or_equals" {
-        for_each = try(var.settings.number_less_than_or_equals, null) != null ? [var.settings.number_less_than_or_equals] : []
+        for_each = try(advanced_filter.value.number_less_than_or_equals, [])
         content {
-          key   = try(number_less_than.value.number_less_than_or_equals, null)
-          value = try(number_less_than.value.number_less_than_or_equals, null)
+          key   = number_less_than_or_equals.value.key
+          value = number_less_than_or_equals.value.value
         }
       }
       dynamic "number_in" {
-        for_each = try(var.settings.number_in, null) != null ? [var.settings.number_in] : []
+        for_each = try(advanced_filter.value.number_in, [])
         content {
-          key    = try(number_less_than.value.number_in, null)
-          values = try(number_less_than.value.number_in, null)
+          key    = number_in.value.key
+          values = number_in.value.values
         }
       }
       dynamic "number_not_in" {
-        for_each = try(var.settings.number_not_in, null) != null ? [var.settings.number_not_in] : []
+        for_each = try(advanced_filter.value.number_not_in, [])
         content {
-          key    = try(number_less_than.value.number_not_in, null)
-          values = try(number_less_than.value.number_not_in, null)
+          key    = number_not_in.value.key
+          values = number_not_in.value.values
         }
       }
       dynamic "number_in_range" {
-        for_each = try(var.settings.number_in_range, null) != null ? [var.settings.number_in_range] : []
+        for_each = try(advanced_filter.value.number_in_range, [])
         content {
-          key    = try(number_less_than.value.number_in_range, null)
-          values = try(number_less_than.value.number_in_range, null)
+          key    = number_in_range.value.key
+          values = number_in_range.value.values
         }
       }
       dynamic "number_not_in_range" {
-        for_each = try(var.settings.number_not_in_range, null) != null ? [var.settings.number_not_in_range] : []
+        for_each = try(advanced_filter.value.number_not_in_range, [])
         content {
-          key    = try(number_less_than.value.number_not_in_range, null)
-          values = try(number_less_than.value.number_not_in_range, null)
+          key    = number_not_in_range.value.key
+          values = number_not_in_range.value.values
         }
       }
       dynamic "string_begins_with" {
-        for_each = try(var.settings.string_begins_with, null) != null ? [var.settings.string_begins_with] : []
+        for_each = try(advanced_filter.value.string_begins_with, [])
         content {
-          key    = try(number_less_than.value.string_begins_with, null)
-          values = try(number_less_than.value.string_begins_with, null)
+          key    = string_begins_with.value.key
+          values = string_begins_with.value.values
         }
       }
       dynamic "string_not_begins_with" {
-        for_each = try(var.settings.string_not_begins_with, null) != null ? [var.settings.string_not_begins_with] : []
+        for_each = try(advanced_filter.value.string_not_begins_with, [])
         content {
-          key    = try(number_less_than.value.string_not_begins_with, null)
-          values = try(number_less_than.value.string_not_begins_with, null)
+          key    = string_not_begins_with.value.key
+          values = string_not_begins_with.value.values
         }
       }
       dynamic "string_ends_with" {
-        for_each = try(var.settings.string_ends_with, null) != null ? [var.settings.string_ends_with] : []
+        for_each = try(advanced_filter.value.string_ends_with, [])
         content {
-          key    = try(number_less_than.value.string_ends_with, null)
-          values = try(number_less_than.value.string_ends_with, null)
+          key    = string_ends_with.value.key
+          values = string_ends_with.value.values
         }
       }
       dynamic "string_not_ends_with" {
-        for_each = try(var.settings.string_not_ends_with, null) != null ? [var.settings.string_not_ends_with] : []
+        for_each = try(advanced_filter.value.string_not_ends_with, [])
         content {
-          key    = try(number_less_than.value.string_not_ends_with, null)
-          values = try(number_less_than.value.string_not_ends_with, null)
+          key    = string_not_ends_with.value.key
+          values = string_not_ends_with.value.values
         }
       }
       dynamic "string_contains" {
-        for_each = try(var.settings.string_contains, null) != null ? [var.settings.string_contains] : []
+        for_each = try(advanced_filter.value.string_contains, [])
         content {
-          key    = try(number_less_than.value.string_contains, null)
-          values = try(number_less_than.value.string_contains, null)
+          key    = string_contains.value.key
+          values = string_contains.value.values
         }
       }
       dynamic "string_not_contains" {
-        for_each = try(var.settings.string_not_contains, null) != null ? [var.settings.string_not_contains] : []
+        for_each = try(advanced_filter.value.string_not_contains, [])
         content {
-          key    = try(number_less_than.value.string_not_contains, null)
-          values = try(number_less_than.value.string_not_contains, null)
+          key    = string_not_contains.value.key
+          values = string_not_contains.value.values
         }
       }
       dynamic "string_in" {
-        for_each = try(var.settings.string_in, null) != null ? [var.settings.string_in] : []
+        for_each = try(advanced_filter.value.string_in, [])
         content {
-          key    = try(number_less_than.value.string_in, null)
-          values = try(number_less_than.value.string_in, null)
+          key    = string_in.value.key
+          values = string_in.value.values
         }
       }
       dynamic "string_not_in" {
-        for_each = try(var.settings.string_not_in, null) != null ? [var.settings.string_not_in] : []
+        for_each = try(advanced_filter.value.string_not_in, [])
         content {
-          key    = try(number_less_than.value.string_not_in, null)
-          values = try(number_less_than.value.string_not_in, null)
+          key    = string_not_in.value.key
+          values = string_not_in.value.values
         }
       }
       dynamic "is_not_null" {
-        for_each = try(var.settings.is_not_null, null) != null ? [var.settings.is_not_null] : []
+        for_each = try(advanced_filter.value.is_not_null, [])
         content {
-          key = try(number_less_than.value.is_not_null, null)
+          key = is_not_null.value.key
         }
       }
       dynamic "is_null_or_undefined" {
-        for_each = try(var.settings.is_null_or_undefined, null) != null ? [var.settings.is_null_or_undefined] : []
+        for_each = try(advanced_filter.value.is_null_or_undefined, [])
         content {
-          key = try(number_less_than.value.is_null_or_undefined, null)
+          key = is_null_or_undefined.value.key
         }
       }
     }
   }
+
   dynamic "delivery_identity" {
-    for_each = try(var.settings.delivery_identity, null) != null ? [var.settings.delivery_identity] : []
+    for_each = can(var.settings.delivery_identity) ? [var.settings.delivery_identity] : []
     content {
-      type                   = try(delivery_identity.value.type, null)
-      user_assigned_identity = try(delivery_identity.value.user_assigned_identity, null)
+      type                   = var.settings.delivery_identity.type
+      user_assigned_identity = can(delivery_identity.value.user_assigned_identity_id) ? delivery_identity.value.user_assigned_identity_id : var.managed_identities[try(var.settings.delivery_identity.lz_key, var.client_config.landingzone_key)][var.settings.delivery_identity.managed_identity_key].id
     }
   }
+
+
   dynamic "delivery_property" {
     for_each = try(var.settings.delivery_property, null) != null ? [var.settings.delivery_property] : []
     content {

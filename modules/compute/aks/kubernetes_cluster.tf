@@ -137,10 +137,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
     type                         = try(var.settings.default_node_pool.type, "VirtualMachineScaleSets")
     tags                         = merge(try(var.settings.default_node_pool.tags, {}), local.tags)
     ultra_ssd_enabled            = try(var.settings.default_node_pool.ultra_ssd_enabled, false)
+
     dynamic "upgrade_settings" {
       for_each = try(var.settings.default_node_pool.upgrade_settings, null) == null ? [] : [var.settings.default_node_pool.upgrade_settings]
       content {
-        max_surge = upgrade_settings.value.max_surge
+        drain_timeout_in_minutes      = try(upgrade_settings.value.drain_timeout_in_minutes, null)
+        node_soak_duration_in_minutes = try(upgrade_settings.value.node_soak_duration_in_minutes, null)
+        max_surge                     = try(upgrade_settings.value.max_surge, null)
+        undrainable_node_behavior     = try(upgrade_settings.value.undrainable_node_behavior, null)
       }
     }
     vnet_subnet_id   = can(var.settings.default_node_pool.vnet_subnet_id) || can(var.settings.default_node_pool.subnet.resource_id) ? try(var.settings.default_node_pool.vnet_subnet_id, var.settings.default_node_pool.subnet.resource_id) : var.remote_objects.vnets[try(var.settings.vnet.lz_key, var.settings.lz_key, var.client_config.landingzone_key)][try(var.settings.vnet.key, var.settings.vnet_key)].subnets[try(var.settings.default_node_pool.subnet_key, var.settings.default_node_pool.subnet.key)].id
@@ -311,32 +315,31 @@ resource "azurerm_kubernetes_cluster" "aks" {
       }
     }
   }
+
   dynamic "maintenance_window_auto_upgrade" {
-    for_each = try(var.settings.maintenance_window_auto_upgrade, null) == null ? [] : [var.settings.maintenance_window_auto_upgrade]
+    for_each = try(var.settings.maintenance_window_auto_upgrade, null) == null ? [] : [1]
     content {
-      frequency    = maintenance_window_auto_upgrade.frequency
-      interval     = maintenance_window_auto_upgrade.interval
-      duration     = maintenance_window_auto_upgrade.duration
-      day_of_week  = try(maintenance_window_auto_upgrade.day_of_week, null)
-      day_of_month = try(maintenance_window_auto_upgrade.day_of_month, null)
-      week_index   = try(maintenance_window_auto_upgrade.week_index, null)
-      start_time   = try(maintenance_window_auto_upgrade.start_time, null)
-      utc_offset   = try(maintenance_window_auto_upgrade.utc_offset, null)
-      start_date   = try(maintenance_window_auto_upgrade.start_date, null)
+      frequency    = var.settings.maintenance_window_auto_upgrade.frequency
+      interval     = var.settings.maintenance_window_auto_upgrade.interval
+      duration     = var.settings.maintenance_window_auto_upgrade.duration
+      day_of_week  = try(var.settings.maintenance_window_auto_upgrade.day_of_week, null)
+      day_of_month = try(var.settings.maintenance_window_auto_upgrade.day_of_month, null)
+      week_index   = try(var.settings.maintenance_window_auto_upgrade.week_index, null)
+      start_time   = try(var.settings.maintenance_window_auto_upgrade.start_time, null)
+      utc_offset   = try(var.settings.maintenance_window_auto_upgrade.utc_offset, null)
+      start_date   = try(var.settings.maintenance_window_auto_upgrade.start_date, null)
       dynamic "not_allowed" {
-        for_each = try(var.settings.maintenance_window_auto_upgrade.maintenance_window_auto_upgrade.not_allowed, null) == null ? [] : [var.settings.maintenance_window_auto_upgrade.not_allowed]
+        for_each = try(var.settings.maintenance_window_auto_upgrade.not_allowed, [])
         content {
-          end   = not_allowed.value.end
           start = not_allowed.value.start
+          end   = not_allowed.value.end
         }
       }
-
     }
-
   }
 
   dynamic "maintenance_window_node_os" {
-    for_each = try(var.settings.maintenance_window_node_os, null) == null ? [] : [var.settings.maintenance_window_node_os]
+    for_each = try(var.settings.maintenance_window_node_os, null) == null ? [] : [1]
     content {
       frequency    = var.settings.maintenance_window_node_os.frequency
       interval     = var.settings.maintenance_window_node_os.interval
@@ -348,17 +351,14 @@ resource "azurerm_kubernetes_cluster" "aks" {
       utc_offset   = try(var.settings.maintenance_window_node_os.utc_offset, null)
       start_date   = try(var.settings.maintenance_window_node_os.start_date, null)
       dynamic "not_allowed" {
-        for_each = try(var.settings.maintenance_window_node_os.not_allowed, null)
+        for_each = try(var.settings.maintenance_window_node_os.not_allowed, [])
         content {
-          end   = not_allowed.value.end
           start = not_allowed.value.start
+          end   = not_allowed.value.end
         }
       }
-
     }
-
   }
-
   dynamic "microsoft_defender" {
     for_each = try(var.settings.microsoft_defender, null) == null ? [] : [var.settings.microsoft_defender]
 
@@ -473,6 +473,15 @@ node_os_upgrade_channel must be set to NodeImage if automatic_upgrade_channel ha
       disk_driver_enabled         = try(storage_profile.value.disk_driver_enabled, null)
       file_driver_enabled         = try(storage_profile.value.file_driver_enabled, null)
       snapshot_controller_enabled = try(storage_profile.value.snapshot_controller_enabled, null)
+    }
+  }
+
+  dynamic "upgrade_override" {
+    for_each = try(var.settings.upgrade_override[*], {})
+
+    content {
+      force_upgrade_enabled = try(upgrade_override.value.force_upgrade_enabled, null)
+      effective_until       = try(upgrade_override.value.effective_until, null)
     }
   }
 

@@ -9,11 +9,13 @@ variable "settings" {
 }
 variable "remote_objects" {
   description = "Remote objects configuration."
-  type        = any
   default     = {}
 }
 variable "base_tags" {
   description = "Base tags for the resource to be inherited from the resource group."
   type        = map(any)
   default     = {}
+}
+variable "managed_identities" {
+  default = {}
 }

@@ -9,7 +9,6 @@ variable "settings" {
 }
 variable "remote_objects" {
   description = "Remote objects configuration."
-  type        = any
   default     = {}
 }
 variable "base_tags" {
@@ -20,4 +19,10 @@ variable "base_tags" {
 variable "location" {
   description = "Specifies the supported Azure location where to create the resource. Changing this forces a new resource to be created."
   default     = null
+}
+variable "identity" {
+  default = null
+}
+variable "combined_objects" {
+  default = {}
 }

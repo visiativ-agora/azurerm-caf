@@ -21,6 +21,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "nodepools" {
   name                          = each.value.name
   kubernetes_cluster_id         = azurerm_kubernetes_cluster.aks.id
   vm_size                       = each.value.vm_size
+  gpu_driver                    = try(each.value.gpu_driver, null)
   capacity_reservation_group_id = try(each.value.capacity_reservation_group_id, null)
   zones                         = try(each.value.zones, each.value.availability_zones, null)
   auto_scaling_enabled          = try(each.value.auto_scaling_enabled, false)
@@ -116,14 +117,27 @@ resource "azurerm_kubernetes_cluster_node_pool" "nodepools" {
   scale_down_mode              = try(each.value.scale_down_mode, null)
   ultra_ssd_enabled            = try(each.value.ultra_ssd_enabled, false)
 
+
   dynamic "upgrade_settings" {
-    for_each = try(each.value.upgrade_settings, null) == null ? [] : [1]
+    for_each = try(each.value.upgrade_settings, null) == null ? [] : [each.value.upgrade_settings]
     content {
-      drain_timeout_in_minutes      = upgrade_settings.value.drain_timeout_in_minutes
-      node_soak_duration_in_minutes = upgrade_settings.value.node_soak_duration_in_minutes
-      max_surge                     = upgrade_settings.value.max_surge
+      drain_timeout_in_minutes      = try(upgrade_settings.value.drain_timeout_in_minutes, null)
+      node_soak_duration_in_minutes = try(upgrade_settings.value.node_soak_duration_in_minutes, null)
+      max_surge                     = try(upgrade_settings.value.max_surge, null)
+      max_unavailable               = try(upgrade_settings.value.max_unavailable, null)
+      undrainable_node_behavior     = try(upgrade_settings.value.undrainable_node_behavior, null)
     }
   }
+
+  # dynamic "upgrade_settings" {
+  #   for_each = try(var.settings.default_node_pool.upgrade_settings, null) == null ? [] : [var.settings.default_node_pool.upgrade_settings]
+  #   content {
+  #     drain_timeout_in_minutes      = try(upgrade_settings.value.drain_timeout_in_minutes, null)
+  #     node_soak_duration_in_minutes = try(upgrade_settings.value.node_soak_duration_in_minutes, null)
+  #     max_surge                     = try(upgrade_settings.value.max_surge, null)
+  #     max_unavailable               = try(upgrade_settings.value.max_unavailable, null)
+  #   }
+  # }
 
   vnet_subnet_id = can(each.value.subnet.resource_id) || can(each.value.vnet_subnet_id) ? try(each.value.subnet.resource_id, each.value.vnet_subnet_id) : var.remote_objects.vnets[try(var.settings.vnet.lz_key, var.settings.lz_key, var.client_config.landingzone_key)][try(var.settings.vnet.key, var.settings.vnet_key)].subnets[try(each.value.subnet.key, each.value.subnet_key)].id
 

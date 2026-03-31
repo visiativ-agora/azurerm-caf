@@ -29,6 +29,10 @@ variable "resource_group" {
   description = "Resource group object to deploy the Azure resource"
   type        = any
 }
+variable "resource_groups" {
+  description = "Resource group object to deploy the mi federated credentials"
+  type        = any
+}
 variable "base_tags" {
   description = "Base tags for the resource to be inherited from the resource group."
   type        = bool
@@ -43,7 +47,6 @@ variable "private_dns_zone_id" {
   default     = null
   type        = string
 }
-
 variable "private_endpoints" {
   description = "Private endpoints to be used in the module."
   default     = {}
@@ -54,7 +57,14 @@ variable "private_dns" {
   default     = {}
   type        = any
 }
-
+variable "azuread_federated_credentials" {
+  default = {}
+}
+variable "mi_federated_credentials" {
+  default = {}
+}
+variable "fleet_manager" {
+}
 variable "remote_objects" {
   description = "Remote objects to be used in the module."
   default     = {}

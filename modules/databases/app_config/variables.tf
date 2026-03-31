@@ -54,7 +54,7 @@ variable "name" {
 
 variable "combined_objects" {
   description = "Combined objects for the resource."
-  type        = map(any)
+  type        = any
   default     = {}
 }
 
@@ -72,3 +72,6 @@ variable "private_dns" {
   type        = map(any)
   default     = {}
 }
+variable "managed_identities" {}
+variable "keyvaults" {}
+variable "resource_groups" {}

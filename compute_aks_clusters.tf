@@ -3,9 +3,11 @@ module "aks_clusters" {
   depends_on = [null_resource.register_feature_preview, module.networking, module.routes, module.azurerm_firewall_policies, module.application_gateways, module.application_gateway_platforms, module.application_gateway_applications]
   for_each   = local.compute.aks_clusters
 
-  client_config   = local.client_config
-  global_settings = local.global_settings
-  settings        = each.value
+  client_config       = local.client_config
+  global_settings     = local.global_settings
+  settings            = each.value
+  diagnostic_profiles = try(each.value.diagnostic_profiles, {})
+  fleet_manager       = try(local.combined_objects_kubernetes_fleet_managers[try(each.value.fleet_manager.lz_key, local.client_config.landingzone_key)][try(each.value.fleet_manager_key, each.value.fleet_manager.key)], null)
 
   admin_group_object_ids = try(each.value.admin_groups.azuread_group_keys, null) == null ? null : try(
     each.value.admin_groups.ids,
@@ -20,6 +22,7 @@ module "aks_clusters" {
 
   base_tags           = local.global_settings.inherit_tags
   resource_group      = local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group_key, each.value.resource_group.key)]
+  resource_groups     = local.combined_objects_resource_groups
   resource_group_name = can(each.value.resource_group.name) || can(each.value.resource_group_name) ? try(each.value.resource_group.name, each.value.resource_group_name) : null
   location            = try(local.global_settings.regions[each.value.region], null)
 
@@ -32,6 +35,7 @@ module "aks_clusters" {
     diagnostics            = local.combined_diagnostics
     managed_identities     = local.combined_objects_managed_identities
     vnets                  = local.combined_objects_networking
+    azuread_applications   = local.combined_objects_azuread_applications
   }
 }
 

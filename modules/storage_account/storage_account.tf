@@ -104,6 +104,14 @@ resource "azurerm_storage_account" "stg" {
       default_service_version  = try(var.storage_account.blob_properties.default_service_version, "2020-06-12")
       last_access_time_enabled = try(var.storage_account.blob_properties.last_access_time_enabled, false)
 
+      dynamic "restore_policy" {
+        for_each = lookup(var.storage_account.blob_properties, "restore_policy", false) == false ? [] : [1]
+
+        content {
+          days = try(var.storage_account.blob_properties.restore_policy.days, null)
+        }
+      }
+
       dynamic "cors_rule" {
         for_each = lookup(var.storage_account.blob_properties, "cors_rule", false) == false ? [] : [1]
 
@@ -120,7 +128,7 @@ resource "azurerm_storage_account" "stg" {
         for_each = lookup(var.storage_account.blob_properties, "delete_retention_policy", false) == false ? [] : [1]
 
         content {
-          days = try(var.storage_account.blob_properties.delete_retention_policy.delete_retention_policy, 7)
+          days = try(var.storage_account.blob_properties.delete_retention_policy.days, 7)
         }
       }
 
@@ -128,7 +136,7 @@ resource "azurerm_storage_account" "stg" {
         for_each = lookup(var.storage_account.blob_properties, "container_delete_retention_policy", false) == false ? [] : [1]
 
         content {
-          days = try(var.storage_account.blob_properties.container_delete_retention_policy.container_delete_retention_policy, 7)
+          days = try(var.storage_account.blob_properties.container_delete_retention_policy.days, 7)
         }
       }
     }
@@ -269,7 +277,7 @@ resource "azurerm_storage_account" "stg" {
 
   lifecycle {
     ignore_changes = [
-      location, resource_group_name
+      location, resource_group_name, customer_managed_key
     ]
   }
 }

@@ -40,11 +40,14 @@ output "rbac_id" {
   value = length(azurerm_kubernetes_cluster.aks.kubelet_identity) > 0 ? azurerm_kubernetes_cluster.aks.kubelet_identity[0].object_id : ""
 }
 
-
 output "node_resource_group" {
   value = azurerm_kubernetes_cluster.aks.node_resource_group
 }
 
 output "private_fqdn" {
   value = azurerm_kubernetes_cluster.aks.private_fqdn
+}
+
+output "oidc_issuer_url" {
+  value = azurerm_kubernetes_cluster.aks.oidc_issuer_url
 }

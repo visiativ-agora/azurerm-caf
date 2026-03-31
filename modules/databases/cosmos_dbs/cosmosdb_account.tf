@@ -26,6 +26,7 @@ resource "azurerm_cosmosdb_account" "cosmos_account" {
   public_network_access_enabled      = try(var.settings.public_network_access_enabled, true)
   access_key_metadata_writes_enabled = try(var.settings.access_key_metadata_writes_enabled, null)
   local_authentication_disabled      = try(var.settings.local_authentication_disabled, null)
+  mongo_server_version               = try(var.settings.mongo_server_version, null)
 
   dynamic "consistency_policy" {
     for_each = lookup(var.settings, "consistency_policy", {}) == {} ? [] : [1]
@@ -34,6 +35,14 @@ resource "azurerm_cosmosdb_account" "cosmos_account" {
       consistency_level       = var.settings.consistency_policy.consistency_level
       max_interval_in_seconds = try(var.settings.consistency_policy.max_interval_in_seconds, null)
       max_staleness_prefix    = try(var.settings.consistency_policy.max_staleness_prefix, null)
+    }
+  }
+
+  dynamic "virtual_network_rule" {
+    for_each = try(var.settings.network_rules, {})
+    content {
+      id                                   = can(virtual_network_rule.value.id) ? virtual_network_rule.value.id : var.vnets[try(virtual_network_rule.value.lz_key, var.client_config.landingzone_key)][virtual_network_rule.value.vnet_key].subnets[virtual_network_rule.value.subnet_key].id
+      ignore_missing_vnet_service_endpoint = try(virtual_network_rule.value.ignore_missing_vnet_service_endpoint, null)
     }
   }
 
@@ -48,6 +57,15 @@ resource "azurerm_cosmosdb_account" "cosmos_account" {
     }
   }
 
+  dynamic "identity" {
+    for_each = can(var.settings.identity) ? [var.settings.identity] : []
+
+    content {
+      type         = identity.value.type
+      identity_ids = local.managed_identities
+    }
+  }
+
   # Optional
   dynamic "capabilities" {
     for_each = try(toset(var.settings.capabilities), [])
@@ -56,6 +74,19 @@ resource "azurerm_cosmosdb_account" "cosmos_account" {
       name = capabilities.value
     }
   }
+
+  dynamic "backup" {
+    for_each = try(var.settings.backup, null) != null ? [var.settings.backup] : []
+
+    content {
+      type                = backup.value.type
+      tier                = try(backup.value.tier, null)
+      interval_in_minutes = try(backup.value.interval_in_minutes, null)
+      retention_in_hours  = try(backup.value.retention_in_hours, null)
+      storage_redundancy  = try(backup.value.storage_redundancy, null)
+    }
+  }
+
   dynamic "restore" {
     for_each = try(var.settings.restore, null) != null ? [var.settings.restore] : []
     content {
@@ -71,5 +102,3 @@ resource "azurerm_cosmosdb_account" "cosmos_account" {
     }
   }
 }
-
-
