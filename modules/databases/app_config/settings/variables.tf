@@ -13,11 +13,17 @@ variable "tags" {
   type        = map(any)
 }
 
-variable "app_config_id" {
-  type        = string
-  description = "App Config Resource Id"
+variable "key_values" {
+  type        = list(string)
+  description = "App Config Setting Values List"
 }
 
-variable "client_config" {}
-variable "config_settings" {}
-variable "keyvaults" {}
+variable "key_names" {
+  type        = list(string)
+  description = "App Config Setting Key Names"
+}
+
+variable "config_name" {
+  type        = string
+  description = "App Config Resource Name"
+}
