@@ -43,8 +43,8 @@ resource "azurerm_windows_function_app" "windows_function_app" {
     dynamic "application_stack" {
       for_each = try(var.settings.site_config.application_stack, {}) != {} ? [1] : []
       content {
-        dotnet_version              = try(var.settings.site_config.application_stack.dotnet_version, "v4.0")
-        use_dotnet_isolated_runtime = try(var.settings.site_config.application_stack.use_dotnet_isolated_runtime, false)
+        dotnet_version              = try(var.settings.site_config.application_stack.dotnet_version, null)
+        use_dotnet_isolated_runtime = try(var.settings.site_config.application_stack.use_dotnet_isolated_runtime, null)
         java_version                = try(var.settings.site_config.application_stack.java_version, null)
         node_version                = try(var.settings.site_config.application_stack.node_version, null)
         powershell_core_version     = try(var.settings.site_config.application_stack.powershell_core_version, null)
