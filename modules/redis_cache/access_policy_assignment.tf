@@ -1,7 +1,7 @@
 resource "azurerm_redis_cache_access_policy_assignment" "role_assignments" {
-  for_each = length(local.redis_role_assignments_flat ) > 0 ? {
-    for idx, assignment in local.redis_role_assignments_flat  : idx => assignment
-  } : {}
+  for_each = {
+    for assignment in local.redis_role_assignments_flat : assignment.name => assignment
+  }
 
   name               = each.value.name
   redis_cache_id     = azurerm_redis_cache.redis.id
