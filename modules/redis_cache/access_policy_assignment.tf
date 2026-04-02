@@ -1,6 +1,6 @@
 resource "azurerm_redis_cache_access_policy_assignment" "role_assignments" {
-  for_each = length(local.redis_role_assignments_merged) > 0 ? {
-    for idx, assignment in local.redis_role_assignments_merged : idx => assignment
+  for_each = length(local.redis_role_assignments_flat ) > 0 ? {
+    for idx, assignment in local.redis_role_assignments_flat  : idx => assignment
   } : {}
 
   name               = each.value.name
