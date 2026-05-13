@@ -418,7 +418,7 @@ resource "azurerm_windows_function_app_slot" "windows_function_app_slot" {
     try(var.remote_objects.vnets[try(var.settings.virtual_network_subnet.lz_key, var.client_config.landingzone_key)][var.settings.virtual_network_subnet.vnet_key].subnets[var.settings.virtual_network_subnet.subnet_key].id, null)
   )
 
-  vnet_image_pull_enabled                        = try(var.settings.vnet_image_pull_enabled, false)
+  virtual_network_image_pull_enabled             = try(var.settings.virtual_network_image_pull_enabled, false)
   webdeploy_publish_basic_authentication_enabled = try(var.settings.webdeploy_publish_basic_authentication_enabled, true)
 
 

@@ -29,7 +29,7 @@ resource "azurerm_linux_web_app" "linux_web_app" {
   webdeploy_publish_basic_authentication_enabled = try(var.settings.webdeploy_publish_basic_authentication_enabled, true)
   zip_deploy_file                                = try(var.settings.zip_deploy_file, null)
   tags                                           = merge(local.tags, try(var.settings.tags, null))
-  vnet_image_pull_enabled                        = try(var.settings.vnet_image_pull_enabled, null)
+  virtual_network_image_pull_enabled             = try(var.settings.virtual_network_image_pull_enabled, null)
 
   site_config {
     always_on                                     = try(var.settings.site_config.always_on, true)

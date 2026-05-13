@@ -426,7 +426,7 @@ resource "azurerm_linux_function_app" "linux_function_app" {
     null
   )
 
-  vnet_image_pull_enabled                        = try(var.settings.vnet_image_pull_enabled, null)
+  virtual_network_image_pull_enabled             = try(var.settings.virtual_network_image_pull_enabled, null)
   webdeploy_publish_basic_authentication_enabled = try(var.settings.webdeploy_publish_basic_authentication_enabled, null)
   zip_deploy_file                                = try(var.settings.zip_deploy_file, null)
 
