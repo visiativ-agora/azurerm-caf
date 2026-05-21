@@ -430,6 +430,12 @@ resource "azurerm_linux_function_app" "linux_function_app" {
   webdeploy_publish_basic_authentication_enabled = try(var.settings.webdeploy_publish_basic_authentication_enabled, null)
   zip_deploy_file                                = try(var.settings.zip_deploy_file, null)
 
+  lifecycle {
+    ignore_changes = [
+      site_config[0].application_stack[0].docker[0].image_tag,
+    ]
+  }
+
   dynamic "timeouts" {
     for_each = try(var.settings.timeouts, {}) != {} ? [1] : []
     content {

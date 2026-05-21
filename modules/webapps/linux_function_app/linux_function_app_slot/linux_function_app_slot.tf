@@ -412,6 +412,11 @@ resource "azurerm_linux_function_app_slot" "linux_function_app_slot" {
   vnet_image_pull_enabled                        = try(var.settings.vnet_image_pull_enabled, false)
   webdeploy_publish_basic_authentication_enabled = try(var.settings.webdeploy_publish_basic_authentication_enabled, null)
 
+  lifecycle {
+    ignore_changes = [
+      site_config[0].application_stack[0].docker[0].image_tag,
+    ]
+  }
 
   dynamic "timeouts" {
     for_each = try(var.settings.timeouts, {}) != {} ? [1] : []
