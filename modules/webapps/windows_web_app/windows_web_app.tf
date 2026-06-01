@@ -503,6 +503,12 @@ resource "azurerm_windows_web_app" "windows_web_app" {
   webdeploy_publish_basic_authentication_enabled = try(var.settings.webdeploy_publish_basic_authentication_enabled, true)
   zip_deploy_file                                = try(var.settings.zip_deploy_file, null)
 
+  lifecycle {
+    ignore_changes = [
+      site_config[0].application_stack[0].docker_image_name,
+    ]
+  }
+
   dynamic "timeouts" {
     for_each = try(var.settings.timeouts, null) == null ? [] : [var.settings.timeouts]
 
