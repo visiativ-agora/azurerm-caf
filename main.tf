@@ -3,6 +3,7 @@ terraform {
     azurerm = {
       source  = "hashicorp/azurerm"
       version = "~> 4.57.0"
+      configuration_aliases = [azurerm.gitops]
     }
     azuread = {
       source  = "hashicorp/azuread"
