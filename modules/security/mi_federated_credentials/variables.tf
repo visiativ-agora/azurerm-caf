@@ -1,4 +1,5 @@
 variable "settings" {
+  description = "Federated credential settings. Supports managed_identity.{lz_key,key}|managed_identity.id|user_assigned_identity_id and remote=true or remote.managed_identity.{lz_key,key,id}."
   default = {}
 }
 variable "client_config" {

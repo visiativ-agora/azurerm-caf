@@ -1,24 +1,41 @@
 resource "azurerm_federated_identity_credential" "fed_cred" {
-  count = try(var.settings.remote, false) ? 0 : 1
+  count = local.is_remote ? 0 : 1
 
   name                = var.settings.name
   resource_group_name = local.resource_group_name
-  parent_id           = local.parent_id
+  parent_id           = local.parent_id_local
   audience            = try(var.settings.audience, ["api://AzureADTokenExchange"])
   subject             = var.settings.subject
-  issuer              = coalesce(try(var.oidc_issuer_url, null), try(var.settings.oidc_issuer_url, null))
+  issuer              = local.issuer
+
+  lifecycle {
+    precondition {
+      condition     = local.parent_id_local != null
+      error_message = "Unable to resolve local managed identity id. Provide settings.user_assigned_identity_id or valid managed_identity lz_key/key."
+    }
+  }
 }
 
-# Federated credential - remote subscription
-resource "azurerm_federated_identity_credential" "fed_cred_remote" {
-  count = try(var.settings.remote, false) ? 1 : 0
+# Federated credential - remote subscription (without azurerm provider alias)
+resource "azapi_resource" "fed_cred_remote" {
+  count = local.is_remote ? 1 : 0
 
-  provider = azurerm.gitops
+  type      = "Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials@2023-01-31"
+  name      = var.settings.name
+  parent_id = local.parent_id_remote
 
-  name                = var.settings.name
-  resource_group_name = local.resource_group_name
-  parent_id           = local.parent_id
-  audience            = try(var.settings.audience, ["api://AzureADTokenExchange"])
-  subject             = var.settings.subject
-  issuer              = coalesce(try(var.oidc_issuer_url, null), try(var.settings.oidc_issuer_url, null))
+  body = {
+    properties = {
+      issuer    = local.issuer
+      subject   = var.settings.subject
+      audiences = try(var.settings.audience, ["api://AzureADTokenExchange"])
+    }
+  }
+
+  lifecycle {
+    precondition {
+      condition     = local.parent_id_remote != null
+      error_message = "Unable to resolve remote managed identity id. Provide settings.user_assigned_identity_id or valid remote.managed_identity lz_key/key."
+    }
+  }
 }
