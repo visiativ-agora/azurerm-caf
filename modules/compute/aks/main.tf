@@ -1,11 +1,1 @@
-terraform {
-  required_providers {
-    azurecaf = {
-      source = "aztfmod/azurecaf"
-    }
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">= 3.0.0"
-    }
-  }
-}
+# Review other files in the same directory for more details on how to use the module
