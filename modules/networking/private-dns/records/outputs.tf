@@ -6,10 +6,6 @@ output "aaaa" {
    value = azurerm_private_dns_aaaa_record.aaaa_records
 }
 
-output "caa" {
-  value = azurerm_private_dns_caa_record.caa_records
-}
-
 output "cname" {
   value =  azurerm_private_dns_cname_record.cname_records
 }
