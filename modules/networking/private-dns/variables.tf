@@ -16,7 +16,9 @@ variable "resource_group" {
   default = {}
 }
 
-variable "records" {
+variable "settings" {
+  description = "The settings for the Azure resource."
+  type        = any
 }
 
 variable "vnet_links" {

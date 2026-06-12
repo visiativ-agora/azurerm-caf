@@ -384,6 +384,7 @@ locals {
     network_security_perimeters                             = try(var.networking.network_security_perimeters, {})
     network_watchers                                        = try(var.networking.network_watchers, {})
     private_dns                                             = try(var.networking.private_dns, {})
+    private_dns_records                                     = try(var.networking.private_dns_records, {})
     private_dns_resolvers                                   = try(var.networking.private_dns_resolvers, {})
     private_dns_resolver_inbound_endpoints                  = try(var.networking.private_dns_resolver_inbound_endpoints, {})
     private_dns_resolver_outbound_endpoints                 = try(var.networking.private_dns_resolver_outbound_endpoints, {})

@@ -3,11 +3,11 @@
 module "private_dns" {
   source   = "./modules/networking/private-dns"
   for_each = local.networking.private_dns
-
+  
+  settings        = each.value
   global_settings = local.global_settings
   client_config   = local.client_config
   name            = each.value.name
-  records         = try(each.value.records, {})
   vnet_links      = try(each.value.vnet_links, {})
   tags            = try(each.value.tags, null)
   vnets           = local.combined_objects_networking
@@ -19,6 +19,26 @@ module "private_dns" {
 
 output "private_dns" {
   value = module.private_dns
+}
+
+#
+# Create records on remote DNS zones
+#
+module "private_dns_records" {
+  source     = "./modules/networking/private-dns/records"
+  for_each   = try(local.networking.private_dns_records, {})
+  depends_on = [module.private_dns]
+
+  base_tags           = {}
+  client_config       = local.client_config
+  resource_group_name = can(each.value.private_dns.resource_group_name) ? each.value.private_dns.resource_group_name : local.combined_objects_private_dns[try(each.value.private_dns.lz_key, local.client_config.landingzone_key)][each.value.private_dns.key].resource_group_name
+  records             = each.value.records
+  zone_name           = can(each.value.private_dns.name) ? each.value.private_dns.name : local.combined_objects_private_dns[try(each.value.private_dns.lz_key, local.client_config.landingzone_key)][each.value.private_dns.key].name
+}
+
+
+output "private_dns_records" {
+  value = module.private_dns_records
 }
 
 #
