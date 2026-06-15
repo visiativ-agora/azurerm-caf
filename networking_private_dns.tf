@@ -31,7 +31,7 @@ module "private_dns_records" {
 
   base_tags           = {}
   client_config       = local.client_config
-  resource_group_name = can(each.value.private_dns.resource_group_name) ? each.value.private_dns.resource_group_name : local.combined_objects_private_dns[try(each.value.private_dns.lz_key, local.client_config.landingzone_key)][each.value.private_dns.key].resource_group_name
+  resource_group_name = can(each.value.resource_group.name) || can(each.value.resource_group_name) ? try(each.value.resource_group.name, each.value.resource_group_name) : local.combined_objects_resource_groups[try(each.value.resource_group.lz_key, local.client_config.landingzone_key)][try(each.value.resource_group_key, each.value.resource_group.key)].name
   records             = each.value.records
   zone_name           = can(each.value.private_dns.name) ? each.value.private_dns.name : local.combined_objects_private_dns[try(each.value.private_dns.lz_key, local.client_config.landingzone_key)][each.value.private_dns.key].name
 }
