@@ -22,7 +22,7 @@ resource "azurerm_virtual_network_gateway" "vngw" {
   # The following options may change depending upon SKU type. Check product documentation
   sku           = var.settings.sku
   active_active = try(var.settings.active_active, null)
-  enable_bgp    = try(var.settings.enable_bgp, null)
+  bgp_enabled    = try(var.settings.bgp_enabled, null)
   #vpn_type defaults to 'RouteBased'. Type 'PolicyBased' supported only by Basic SKU
   vpn_type = try(var.settings.vpn_type, null)
   tags     = local.tags
@@ -36,7 +36,7 @@ resource "azurerm_virtual_network_gateway" "vngw" {
 
     content {
       name                          = ip_configuration.value.ipconfig_name
-      public_ip_address_id          = can(ip_configuration.value.public_ip_address_id) || can(ip_configuration.value.public_ip_address_key) == false ? try(ip_configuration.value.public_ip_address_id, null) : var.public_ip_addresses[try(ip_configuration.value.lz_key, var.client_config.landingzone_key)][ip_configuration.value.public_ip_address_key].id
+      public_ip_address_id          = var.settings.type == "ExpressRoute" ? null : can(ip_configuration.value.public_ip_address_id) || can(ip_configuration.value.public_ip_address_key) == false ? try(ip_configuration.value.public_ip_address_id, null) : var.public_ip_addresses[try(ip_configuration.value.lz_key, var.client_config.landingzone_key)][ip_configuration.value.public_ip_address_key].id
       private_ip_address_allocation = ip_configuration.value.private_ip_address_allocation
       subnet_id                     = can(ip_configuration.value.subnet_id) ? ip_configuration.value.subnet_id : var.remote_objects.vnets[try(ip_configuration.value.lz_key, var.client_config.landingzone_key)][ip_configuration.value.vnet_key].subnets["GatewaySubnet"].id
     }
