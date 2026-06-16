@@ -28,7 +28,7 @@ resource "azurerm_role_assignment" "for" {
   role_definition_id   = each.value.mode == "custom_role_mapping" ? try(local.combined_objects_custom_roles[coalesce(each.value.role_lz_key, local.client_config.landingzone_key)][each.value.role_definition_name].role_definition_resource_id, module.custom_roles[each.value.role_definition_name], null) : null
   role_definition_name = each.value.mode == "built_in_role_mapping" ? each.value.role_definition_name : null
   scope                = each.value.scope_lz_key == null ? local.services_roles[each.value.scope_resource_key][var.current_landingzone_key][each.value.scope_key_resource].id : local.services_roles[each.value.scope_resource_key][each.value.scope_lz_key][each.value.scope_key_resource].id
-  condition_version    = try(each.value.condition, null) == null ? null : "2.0"
+  condition_version    = try(each.value.condition_version, null) == null ? null : "2.0"
   condition            = try(each.value.condition, null)
 }
 
