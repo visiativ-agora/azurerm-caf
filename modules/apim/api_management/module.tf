@@ -130,7 +130,7 @@ resource "azurerm_api_management" "apim" {
 
     content {
 
-      enable_http2 = try(protocols.value.enable_http2, null)
+      http2_enabled = try(protocols.value.http2_enabled, null)
     }
   }
   dynamic "security" {

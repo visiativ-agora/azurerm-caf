@@ -51,7 +51,7 @@ application_gateways = {
     }
 
     # Global Settings
-    enable_http2 = true
+    http2_enabled = true
     zones        = ["1", "2", "3"]
 
     # Redirect Configurations

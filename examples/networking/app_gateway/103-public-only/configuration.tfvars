@@ -28,7 +28,7 @@ application_gateway = {
       }
     }
     zones        = ["1"]
-    enable_http2 = true
+    http2_enabled = true
 
     front_end_ip_configurations = {
       public = {

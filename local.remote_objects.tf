@@ -6,7 +6,6 @@ locals {
     active_directory_domain_service_replica_set    = try(local.combined_objects_active_directory_domain_service_replica_set, null)
     active_directory_domain_service_trust          = try(local.combined_objects_active_directory_domain_service_trust, null)
     aks_clusters                                   = try(local.combined_objects_aks_clusters, null)
-    ai_services                                    = try(local.combined_objects_ai_services, null)
     kubernetes_fleet_managers                      = try(local.combined_objects_kubernetes_fleet_managers, null)
     api_management                                 = try(local.combined_objects_api_management, null)
     api_management_api                             = try(local.combined_objects_api_management_api, null)

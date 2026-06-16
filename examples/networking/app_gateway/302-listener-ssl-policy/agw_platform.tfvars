@@ -13,7 +13,7 @@ application_gateway_platforms = {
       }
     }
     zones        = ["1"]
-    enable_http2 = true
+    http2_enabled = true
 
     identity = {
       managed_identity_keys = [

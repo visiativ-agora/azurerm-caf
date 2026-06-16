@@ -7,7 +7,6 @@ graph LR
     module_active_directory_domain_service["module.active_directory_domain_service"]
     module_active_directory_domain_service_replica_set["module.active_directory_domain_service_replica_set"]
     module_active_directory_domain_service_trust["module.active_directory_domain_service_trust"]
-    module_ai_services["module.ai_services"]
     module_aks_clusters["module.aks_clusters"]
     module_api_management["module.api_management"]
     module_api_management_api["module.api_management_api"]
@@ -382,7 +381,6 @@ graph LR
     module_active_directory_domain_service_replica_set --> module_active_directory_domain_service
     module_active_directory_domain_service_replica_set --> root
     module_active_directory_domain_service_trust --> module_active_directory_domain_service
-    module_ai_services --> module_storage_accounts
     module_aks_clusters --> module_application_gateway_applications
     module_aks_clusters --> module_application_gateways
     module_aks_clusters --> root
@@ -723,7 +721,6 @@ graph LR
     module_eventgrid_event_subscription --> module_aadb2c_directory
     module_eventgrid_event_subscription --> module_active_directory_domain_service_replica_set
     module_eventgrid_event_subscription --> module_active_directory_domain_service_trust
-    module_eventgrid_event_subscription --> module_ai_services
     module_eventgrid_event_subscription --> module_api_management_api_operation
     module_eventgrid_event_subscription --> module_api_management_logger
     module_eventgrid_event_subscription --> module_azure_bots
@@ -791,7 +788,6 @@ graph LR
     module_eventgrid_system_topic --> module_aadb2c_directory
     module_eventgrid_system_topic --> module_active_directory_domain_service_replica_set
     module_eventgrid_system_topic --> module_active_directory_domain_service_trust
-    module_eventgrid_system_topic --> module_ai_services
     module_eventgrid_system_topic --> module_api_management_api_operation
     module_eventgrid_system_topic --> module_api_management_logger
     module_eventgrid_system_topic --> module_azure_bots
@@ -1012,7 +1008,6 @@ graph LR
     module_monitor_activity_log_alert --> module_aadb2c_directory
     module_monitor_activity_log_alert --> module_active_directory_domain_service_replica_set
     module_monitor_activity_log_alert --> module_active_directory_domain_service_trust
-    module_monitor_activity_log_alert --> module_ai_services
     module_monitor_activity_log_alert --> module_api_management_api_operation
     module_monitor_activity_log_alert --> module_api_management_logger
     module_monitor_activity_log_alert --> module_azure_bots
@@ -1075,7 +1070,6 @@ graph LR
     module_monitor_metric_alert --> module_aadb2c_directory
     module_monitor_metric_alert --> module_active_directory_domain_service_replica_set
     module_monitor_metric_alert --> module_active_directory_domain_service_trust
-    module_monitor_metric_alert --> module_ai_services
     module_monitor_metric_alert --> module_api_management_api_operation
     module_monitor_metric_alert --> module_api_management_logger
     module_monitor_metric_alert --> module_azure_bots
@@ -1628,16 +1622,6 @@ digraph G {
     label = "module.active_directory_domain_service_trust"
     fontname = "sans-serif"
     "module.active_directory_domain_service_trust.azurerm_active_directory_domain_service_trust.adds_trust" [label="azurerm_active_directory_domain_service_trust.adds_trust"];
-  }
-  subgraph "cluster_module.ai_services" {
-    label = "module.ai_services"
-    fontname = "sans-serif"
-    "module.ai_services.azurerm_ai_services.ai_services" [label="azurerm_ai_services.ai_services"];
-  }
-  subgraph "cluster_module.ai_services.module.diagnostics" {
-    label = "module.ai_services.module.diagnostics"
-    fontname = "sans-serif"
-    "module.ai_services.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics" [label="azurerm_monitor_diagnostic_setting.diagnostics"];
   }
   subgraph "cluster_module.aks_clusters" {
     label = "module.aks_clusters"
@@ -6248,21 +6232,6 @@ digraph G {
   "module.active_directory_domain_service_replica_set.azurerm_active_directory_domain_service_replica_set.aaddsrs" -> "azurerm_virtual_network_peering.peering";
   "module.active_directory_domain_service_replica_set.azurerm_active_directory_domain_service_replica_set.aaddsrs" -> "module.active_directory_domain_service.azurerm_active_directory_domain_service.aadds";
   "module.active_directory_domain_service_trust.azurerm_active_directory_domain_service_trust.adds_trust" -> "module.active_directory_domain_service.azurerm_active_directory_domain_service.aadds";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.azurerm_backup_container_storage_account.container";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.azurerm_security_center_storage_defender.defender";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.container.module.blob.azurerm_storage_blob.blob";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.data_lake_filesystem.azurerm_storage_data_lake_gen2_filesystem.gen2";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.diagnostics_blob.azurerm_monitor_diagnostic_setting.diagnostics";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.diagnostics_file.azurerm_monitor_diagnostic_setting.diagnostics";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.diagnostics_queue.azurerm_monitor_diagnostic_setting.diagnostics";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.diagnostics_table.azurerm_monitor_diagnostic_setting.diagnostics";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.file_share.azurerm_backup_protected_file_share.fs_backup";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.file_share.module.file_share_file.azurerm_storage_share_file.share_file";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.management_policy.azurerm_storage_management_policy.mgmt_policy";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.private_endpoint.time_sleep.delay";
-  "module.ai_services.azurerm_ai_services.ai_services" -> "module.storage_accounts.module.queue.azurerm_storage_queue.queue";
-  "module.ai_services.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics" -> "module.ai_services.azurerm_ai_services.ai_services";
   "module.aks_clusters.azurecaf_name.aks" -> "null_resource.register_feature_preview";
   "module.aks_clusters.azurecaf_name.aks" -> "module.application_gateway_applications.null_resource.delete_redirect_configurations";
   "module.aks_clusters.azurecaf_name.aks" -> "module.application_gateway_applications.null_resource.delete_request_routing_rule";
@@ -7879,7 +7848,6 @@ digraph G {
   "module.eventgrid_event_subscription.azurerm_eventgrid_event_subscription.eges" -> "module.aadb2c_directory.azurerm_aadb2c_directory.aadb2c";
   "module.eventgrid_event_subscription.azurerm_eventgrid_event_subscription.eges" -> "module.active_directory_domain_service_replica_set.azurerm_active_directory_domain_service_replica_set.aaddsrs";
   "module.eventgrid_event_subscription.azurerm_eventgrid_event_subscription.eges" -> "module.active_directory_domain_service_trust.azurerm_active_directory_domain_service_trust.adds_trust";
-  "module.eventgrid_event_subscription.azurerm_eventgrid_event_subscription.eges" -> "module.ai_services.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";
   "module.eventgrid_event_subscription.azurerm_eventgrid_event_subscription.eges" -> "module.api_management_api_operation.azurerm_api_management_api_operation.apim";
   "module.eventgrid_event_subscription.azurerm_eventgrid_event_subscription.eges" -> "module.api_management_logger.azurerm_api_management_logger.apim";
   "module.eventgrid_event_subscription.azurerm_eventgrid_event_subscription.eges" -> "module.azure_bots.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";
@@ -7979,7 +7947,6 @@ digraph G {
   "module.eventgrid_system_topic.azurerm_eventgrid_system_topic.egt" -> "module.aadb2c_directory.azurerm_aadb2c_directory.aadb2c";
   "module.eventgrid_system_topic.azurerm_eventgrid_system_topic.egt" -> "module.active_directory_domain_service_replica_set.azurerm_active_directory_domain_service_replica_set.aaddsrs";
   "module.eventgrid_system_topic.azurerm_eventgrid_system_topic.egt" -> "module.active_directory_domain_service_trust.azurerm_active_directory_domain_service_trust.adds_trust";
-  "module.eventgrid_system_topic.azurerm_eventgrid_system_topic.egt" -> "module.ai_services.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";
   "module.eventgrid_system_topic.azurerm_eventgrid_system_topic.egt" -> "module.api_management_api_operation.azurerm_api_management_api_operation.apim";
   "module.eventgrid_system_topic.azurerm_eventgrid_system_topic.egt" -> "module.api_management_logger.azurerm_api_management_logger.apim";
   "module.eventgrid_system_topic.azurerm_eventgrid_system_topic.egt" -> "module.azure_bots.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";
@@ -8845,7 +8812,6 @@ digraph G {
   "module.monitor_activity_log_alert.azurerm_monitor_activity_log_alert.mala" -> "module.aadb2c_directory.azurerm_aadb2c_directory.aadb2c";
   "module.monitor_activity_log_alert.azurerm_monitor_activity_log_alert.mala" -> "module.active_directory_domain_service_replica_set.azurerm_active_directory_domain_service_replica_set.aaddsrs";
   "module.monitor_activity_log_alert.azurerm_monitor_activity_log_alert.mala" -> "module.active_directory_domain_service_trust.azurerm_active_directory_domain_service_trust.adds_trust";
-  "module.monitor_activity_log_alert.azurerm_monitor_activity_log_alert.mala" -> "module.ai_services.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";
   "module.monitor_activity_log_alert.azurerm_monitor_activity_log_alert.mala" -> "module.api_management_api_operation.azurerm_api_management_api_operation.apim";
   "module.monitor_activity_log_alert.azurerm_monitor_activity_log_alert.mala" -> "module.api_management_logger.azurerm_api_management_logger.apim";
   "module.monitor_activity_log_alert.azurerm_monitor_activity_log_alert.mala" -> "module.azure_bots.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";
@@ -8947,7 +8913,6 @@ digraph G {
   "module.monitor_metric_alert.azurerm_monitor_metric_alert.mma" -> "module.aadb2c_directory.azurerm_aadb2c_directory.aadb2c";
   "module.monitor_metric_alert.azurerm_monitor_metric_alert.mma" -> "module.active_directory_domain_service_replica_set.azurerm_active_directory_domain_service_replica_set.aaddsrs";
   "module.monitor_metric_alert.azurerm_monitor_metric_alert.mma" -> "module.active_directory_domain_service_trust.azurerm_active_directory_domain_service_trust.adds_trust";
-  "module.monitor_metric_alert.azurerm_monitor_metric_alert.mma" -> "module.ai_services.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";
   "module.monitor_metric_alert.azurerm_monitor_metric_alert.mma" -> "module.api_management_api_operation.azurerm_api_management_api_operation.apim";
   "module.monitor_metric_alert.azurerm_monitor_metric_alert.mma" -> "module.api_management_logger.azurerm_api_management_logger.apim";
   "module.monitor_metric_alert.azurerm_monitor_metric_alert.mma" -> "module.azure_bots.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";

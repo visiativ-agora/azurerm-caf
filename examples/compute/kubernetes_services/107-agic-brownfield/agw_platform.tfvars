@@ -20,7 +20,7 @@ application_gateway_platforms = {
       }
     }
     zones        = ["1", "2", "3"]
-    enable_http2 = true
+    http2_enabled = true
 
     ssl_policy = {
       policy_name = "AppGwSslPolicy20170401S"

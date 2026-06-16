@@ -119,7 +119,6 @@ docs/modules/backup_vault/backup_vault_policy_blob_storage.md
 docs/modules/backup_vault/backup_vault_policy_disk.md
 docs/modules/bot/azure_bot.md
 docs/modules/cdn/cdn_frontdoor_profile.md
-docs/modules/cognitive_services/ai_services.md
 docs/modules/cognitive_services/cognitive_account_customer_managed_key.md
 docs/modules/cognitive_services/cognitive_deployment.md
 docs/modules/cognitive_services/cognitive_services_account.md
@@ -353,7 +352,6 @@ docs/root/bastion_service.md
 docs/root/bot_azure_bots.md
 docs/root/cdn_cdn_frontdoor_profile.md
 docs/root/cognitive_service.md
-docs/root/cognitive_services_ai_services.md
 docs/root/communication_services.md
 docs/root/compute_aks_clusters.md
 docs/root/compute_availability_sets.md
@@ -605,7 +603,6 @@ site/deepwiki/api/backup_vault_backup_vault_policy_blob_storage/index.html
 site/deepwiki/api/backup_vault_backup_vault_policy_disk/index.html
 site/deepwiki/api/bot_azure_bot/index.html
 site/deepwiki/api/cdn_cdn_frontdoor_profile/index.html
-site/deepwiki/api/cognitive_services_ai_services/index.html
 site/deepwiki/api/cognitive_services_cognitive_account_customer_managed_key/index.html
 site/deepwiki/api/cognitive_services_cognitive_deployment/index.html
 site/deepwiki/api/cognitive_services_cognitive_services_account/index.html
@@ -933,7 +930,6 @@ site/modules/backup_vault/backup_vault_policy_blob_storage/index.html
 site/modules/backup_vault/backup_vault_policy_disk/index.html
 site/modules/bot/azure_bot/index.html
 site/modules/cdn/cdn_frontdoor_profile/index.html
-site/modules/cognitive_services/ai_services/index.html
 site/modules/cognitive_services/cognitive_account_customer_managed_key/index.html
 site/modules/cognitive_services/cognitive_deployment/index.html
 site/modules/cognitive_services/cognitive_services_account/index.html
@@ -1217,7 +1213,6 @@ site/root/bastion_service/index.html
 site/root/bot_azure_bots/index.html
 site/root/cdn_cdn_frontdoor_profile/index.html
 site/root/cognitive_service/index.html
-site/root/cognitive_services_ai_services/index.html
 site/root/communication_services/index.html
 site/root/compute_aks_clusters/index.html
 site/root/compute_availability_sets/index.html

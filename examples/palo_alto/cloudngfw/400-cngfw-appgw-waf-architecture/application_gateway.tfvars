@@ -52,7 +52,7 @@ application_gateways = {
     # Availability Zones
     # Best Practice: Deploy across zones for 99.99% SLA
     zones        = ["1", "2", "3"]
-    enable_http2 = true
+    http2_enabled = true
     front_end_ip_configurations = {
       public = {
         name          = "frontend-public-ip"

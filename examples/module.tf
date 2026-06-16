@@ -92,7 +92,6 @@ module "example" {
   }
 
   cognitive_services = {
-    ai_services                            = var.ai_services
     cognitive_services_account             = var.cognitive_services_account
     cognitive_account_customer_managed_key = var.cognitive_account_customer_managed_key
     cognitive_deployment                   = var.cognitive_deployment

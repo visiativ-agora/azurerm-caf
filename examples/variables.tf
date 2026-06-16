@@ -204,10 +204,6 @@ variable "subscription_billing_role_assignments" {
   type    = any
   default = {}
 }
-variable "ai_services" {
-  type    = any
-  default = {}
-}
 
 variable "app_service_environments" {
   type    = any

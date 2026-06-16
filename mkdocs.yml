@@ -60,7 +60,6 @@ nav:
       - cdn:
           - cdn_frontdoor_profile: modules/cdn/cdn_frontdoor_profile.md
       - cognitive_services:
-          - ai_services: modules/cognitive_services/ai_services.md
           - cognitive_account_customer_managed_key: modules/cognitive_services/cognitive_account_customer_managed_key.md
           - cognitive_deployment: modules/cognitive_services/cognitive_deployment.md
           - cognitive_services_account: modules/cognitive_services/cognitive_services_account.md
@@ -321,7 +320,6 @@ nav:
       - bot_azure_bots: root/bot_azure_bots.md
       - cdn_cdn_frontdoor_profile: root/cdn_cdn_frontdoor_profile.md
       - cognitive_service: root/cognitive_service.md
-      - cognitive_services_ai_services: root/cognitive_services_ai_services.md
       - communication_services: root/communication_services.md
       - compute_aks_clusters: root/compute_aks_clusters.md
       - compute_availability_sets: root/compute_availability_sets.md
