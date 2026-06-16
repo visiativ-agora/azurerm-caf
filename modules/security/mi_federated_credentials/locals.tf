@@ -25,8 +25,4 @@ locals {
     try(var.settings.oidc_issuer_url, null)
   ), null)
 
-  resource_group_name = try(coalesce(
-    try(var.resource_group_name, null),
-    try(split("/", local.parent_id)[4], null)
-  ), null)
 }
