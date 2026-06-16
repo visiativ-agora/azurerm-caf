@@ -286,7 +286,7 @@ module "queue" {
   source   = "./queue"
   for_each = try(var.storage_account.queues, {})
 
-  storage_account_name = azurerm_storage_account.stg.name
+  storage_account_id   = azurerm_storage_account.stg.id
   settings             = each.value
 }
 

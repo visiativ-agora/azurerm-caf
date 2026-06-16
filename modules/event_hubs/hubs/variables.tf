@@ -14,6 +14,10 @@ variable "namespace_name" {
   description = "Name of the Event Hub Namespace."
   type        = string
 }
+variable "namespace_id" {
+  description = "ID of the Event Hub Namespace."
+  type        = string
+}
 variable "storage_account_id" {
   description = "Identifier of the storage account ID to be used."
   type        = string

@@ -13,8 +13,7 @@ resource "azurecaf_name" "evhub" {
 
 resource "azurerm_eventhub" "evhub" {
   name                = azurecaf_name.evhub.result
-  namespace_name      = var.namespace_name
-  resource_group_name = var.resource_group_name
+  namespace_id        = var.namespace_id  
   partition_count     = var.settings.partition_count
   message_retention   = var.settings.message_retention
   status              = try(var.settings.status, null)
