@@ -1,11 +1,11 @@
 resource "azurerm_federated_identity_credential" "fed_cred" {
   count = local.is_remote ? 0 : 1
 
-  name                = var.settings.name
-  parent_id           = local.parent_id_local
-  audience            = try(var.settings.audience, ["api://AzureADTokenExchange"])
-  subject             = var.settings.subject
-  issuer              = local.issuer
+  name                      = var.settings.name
+  user_assigned_identity_id = local.parent_id_local
+  audience                  = try(var.settings.audience, ["api://AzureADTokenExchange"])
+  subject                   = var.settings.subject
+  issuer                    = local.issuer
 
   lifecycle {
     precondition {
