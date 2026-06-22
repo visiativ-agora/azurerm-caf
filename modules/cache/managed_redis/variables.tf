@@ -101,7 +101,7 @@ variable "base_tags" {
 
 variable "remote_objects" {
   description = "Remote objects map (diagnostics, keyvaults, etc.)."
-  type        = map(any)
+  type        = any
   default     = {}
 }
 
