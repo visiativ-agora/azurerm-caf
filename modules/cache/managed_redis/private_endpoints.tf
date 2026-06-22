@@ -5,7 +5,7 @@
 #
 
 module "private_endpoint" {
-  source   = "../networking/private_endpoint"
+  source   = "../../networking/private_endpoint"
   for_each = var.remote_objects.private_endpoints
 
   resource_id         = azurerm_managed_redis.managed_redis.id
