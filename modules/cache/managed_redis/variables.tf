@@ -116,3 +116,15 @@ variable "diagnostics" {
   type        = any
   default     = {}
 }
+
+variable "private_endpoints" {
+  description = "Configuration for private endpoints."
+  type        = any
+  default     = {}
+}
+
+variable "redis_role_assignment" {
+  description = "Role assignments for the Managed Redis instance. This should be a map of role names to role assignment configurations, which include the managed identities to assign the role to. Example: { \"Reader\" = { managed_identities = { \"mi1\" = {}, \"mi2\" = {} } } }"
+  type        = any
+  default     = {}
+}
