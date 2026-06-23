@@ -101,7 +101,7 @@ variable "base_tags" {
 
 variable "remote_objects" {
   description = "Remote objects map (diagnostics, keyvaults, etc.)."
-  type        = map(any)
+  type        = any
   default     = {}
 }
 
@@ -113,6 +113,36 @@ variable "diagnostic_profiles" {
 
 variable "diagnostics" {
   description = "Diagnostics destinations from remote objects."
+  type        = any
+  default     = {}
+}
+
+variable "private_endpoints" {
+  description = "Private endpoints configuration for managed redis."
+  type        = any
+  default     = {}
+}
+
+variable "private_dns" {
+  description = "Private DNS zones map used by private endpoints. Backward compatibility fallback when remote_objects.private_dns is not provided."
+  type        = any
+  default     = {}
+}
+
+variable "vnets" {
+  description = "Virtual networks map used to resolve subnet references for private endpoints. Backward compatibility fallback when remote_objects.vnets is not provided."
+  type        = any
+  default     = {}
+}
+
+variable "virtual_subnets" {
+  description = "Virtual subnets map used to resolve subnet references for private endpoints. Backward compatibility fallback when remote_objects.virtual_subnets is not provided."
+  type        = any
+  default     = {}
+}
+
+variable "redis_role_assignment" {
+  description = "Role assignments for the Managed Redis instance. This should be a map of role names to role assignment configurations, which include the managed identities to assign the role to. Example: { \"Reader\" = { managed_identities = { \"mi1\" = {}, \"mi2\" = {} } } }"
   type        = any
   default     = {}
 }
