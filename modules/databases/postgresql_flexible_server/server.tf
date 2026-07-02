@@ -16,6 +16,7 @@ resource "azurerm_postgresql_flexible_server" "postgresql" {
   sku_name            = try(var.settings.sku_name, null)
   zone                = try(var.settings.zone, null)
   storage_mb          = try(var.settings.storage_mb, null)
+  storage_tier        = try(var.settings.storage_tier, null)
 
   delegated_subnet_id = try(var.remote_objects.subnet_id, null)
   private_dns_zone_id = try(var.remote_objects.private_dns_zone_id, null)
@@ -73,9 +74,9 @@ resource "azurerm_postgresql_flexible_server" "postgresql" {
 resource "azurerm_key_vault_secret" "postgresql_administrator_username" {
   count = lookup(var.settings, "keyvault", null) == null ? 0 : 1
 
-  name            = format("%s-username", azurecaf_name.postgresql_flexible_server.result)
-  value           = try(var.settings.administrator_username, "pgadmin")
-  key_vault_id    = var.remote_objects.keyvault_id
+  name         = format("%s-username", azurecaf_name.postgresql_flexible_server.result)
+  value        = try(var.settings.administrator_username, "pgadmin")
+  key_vault_id = var.remote_objects.keyvault_id
   # content_type    = "text/plain"
   # expiration_date = timeadd(timestamp(), "8760h")
   # # 8760h = 1 year
