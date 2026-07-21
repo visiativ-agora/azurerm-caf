@@ -73,6 +73,7 @@ resource "azurerm_cognitive_account" "service" {
 
 
   outbound_network_access_restricted           = try(var.settings.outbound_network_access_restricted, false)
+  project_management_enabled                   = try(var.settings.project_management_enabled, false)
   public_network_access_enabled                = try(var.settings.public_network_access_enabled, true)
   qna_runtime_endpoint                         = var.settings.kind == "QnAMaker" ? var.settings.qna_runtime_endpoint : try(var.settings.qna_runtime_endpoint, null)
   custom_question_answering_search_service_id  = var.settings.kind == "TextAnalytics" ? var.settings.custom_question_answering_search_service_id : try(var.settings.custom_question_answering_search_service_id, null)
