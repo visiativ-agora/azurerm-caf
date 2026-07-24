@@ -45,6 +45,7 @@ resource "azurerm_web_application_firewall_policy" "wafpolicy" {
       file_upload_limit_in_mb                   = try(var.settings.policy_settings.file_upload_limit_in_mb, null)
       request_body_check                        = try(var.settings.policy_settings.request_body_check, null)
       max_request_body_size_in_kb               = try(var.settings.policy_settings.max_request_body_size_in_kb, null)
+      request_body_inspect_limit_in_kb          = try(var.settings.policy_settings.request_body_inspect_limit_in_kb, null)
       js_challenge_cookie_expiration_in_minutes = try(var.settings.policy_settings.js_challenge_cookie_expiration_in_minutes, null)
     }
   }
