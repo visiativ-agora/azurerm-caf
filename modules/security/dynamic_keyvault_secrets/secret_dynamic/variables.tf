@@ -8,3 +8,4 @@ variable "config" {
     override_special = "_!@"
   }
 }
+variable "tags" {}
