@@ -9,7 +9,7 @@ module "secret" {
   value = can(each.value.output_key) && (can(each.value.resource_key) || can(each.value.attribute_key)) ? lookup(lookup(var.objects[each.value.output_key], try(each.value.resource_key, ""), var.objects[each.value.output_key]), each.value.attribute_key, null) : each.value.value
   # for future generations: double lookup because each.value.resource_key is optional
   keyvault_id = var.keyvault.id
-  tags        = try(each.value.tags, null)
+  tags        = try(each.value.tags, {})
 }
 
 module "secret_value" {
@@ -22,7 +22,7 @@ module "secret_value" {
   name        = each.value.secret_name
   value       = each.value.value
   keyvault_id = var.keyvault.id
-  tags        = try(each.value.tags, null)
+  tags        = try(each.value.tags, {})
 }
 
 module "secret_immutable" {
@@ -36,7 +36,7 @@ module "secret_immutable" {
   value = can(each.value.output_key) && (can(each.value.resource_key) || can(each.value.attribute_key)) ? lookup(lookup(var.objects[each.value.output_key], try(each.value.resource_key, ""), var.objects[each.value.output_key]), each.value.attribute_key, null) : each.value.value
   # for future generations: double lookup because each.value.resource_key is optional
   keyvault_id = var.keyvault.id
-  tags        = try(each.value.tags, null)
+  tags        = try(each.value.tags, {})
 }
 
 module "secret_dynamic" {
@@ -50,5 +50,5 @@ module "secret_dynamic" {
   value       = each.value.value
   keyvault_id = var.keyvault.id
   config      = each.value.config
-  tags        = try(each.value.tags, null)
+  tags        = try(each.value.tags, {})
 }
