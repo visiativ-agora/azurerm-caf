@@ -540,10 +540,6 @@ variable "batch_applications" {
   type    = any
   default = {}
 }
-variable "batch_certificates" {
-  type    = any
-  default = {}
-}
 variable "batch_jobs" {
   type    = any
   default = {}

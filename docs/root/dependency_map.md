@@ -79,7 +79,6 @@ graph LR
     module_bastion_host_diagnostics["module.bastion_host_diagnostics"]
     module_batch_accounts["module.batch_accounts"]
     module_batch_applications["module.batch_applications"]
-    module_batch_certificates["module.batch_certificates"]
     module_batch_jobs["module.batch_jobs"]
     module_batch_pools["module.batch_pools"]
     module_cdn_frontdoor_profiles["module.cdn_frontdoor_profiles"]
@@ -538,10 +537,7 @@ graph LR
     module_batch_applications --> module_batch_accounts
     module_batch_applications --> module_keyvault_keys
     module_batch_applications --> root
-    module_batch_certificates --> module_batch_accounts
-    module_batch_certificates --> module_keyvault_keys
     module_batch_jobs --> module_batch_pools
-    module_batch_pools --> module_batch_certificates
     module_batch_pools --> root
     module_cdn_frontdoor_profiles --> module_keyvault_certificate_requests
     module_cdn_frontdoor_profiles --> module_storage_accounts
@@ -2362,11 +2358,6 @@ digraph G {
     fontname = "sans-serif"
     "module.batch_applications.azurecaf_name.application" [label="azurecaf_name.application"];
     "module.batch_applications.azurerm_batch_application.application" [label="azurerm_batch_application.application"];
-  }
-  subgraph "cluster_module.batch_certificates" {
-    label = "module.batch_certificates"
-    fontname = "sans-serif"
-    "module.batch_certificates.azurerm_batch_certificate.certificate" [label="azurerm_batch_certificate.certificate"];
   }
   subgraph "cluster_module.batch_jobs" {
     label = "module.batch_jobs"
@@ -7013,12 +7004,8 @@ digraph G {
   "module.batch_applications.azurerm_batch_application.application" -> "module.batch_accounts.module.private_endpoint.time_sleep.delay";
   "module.batch_applications.azurerm_batch_application.application" -> "module.batch_applications.azurecaf_name.application";
   "module.batch_applications.azurerm_batch_application.application" -> "module.keyvault_keys.azurerm_key_vault_key.key";
-  "module.batch_certificates.azurerm_batch_certificate.certificate" -> "module.batch_accounts.module.diagnostics.azurerm_monitor_diagnostic_setting.diagnostics";
-  "module.batch_certificates.azurerm_batch_certificate.certificate" -> "module.batch_accounts.module.private_endpoint.time_sleep.delay";
-  "module.batch_certificates.azurerm_batch_certificate.certificate" -> "module.keyvault_keys.azurerm_key_vault_key.key";
   "module.batch_jobs.azurerm_batch_job.job" -> "module.batch_pools.azurerm_batch_pool.pool";
   "module.batch_pools.azurecaf_name.pool" -> "random_string.prefix";
-  "module.batch_pools.azurerm_batch_pool.pool" -> "module.batch_certificates.azurerm_batch_certificate.certificate";
   "module.batch_pools.azurerm_batch_pool.pool" -> "module.batch_pools.azurecaf_name.pool";
   "module.cdn_frontdoor_profiles.azurecaf_name.cdn_frontdoor_profile" -> "random_string.prefix";
   "module.cdn_frontdoor_profiles.azurerm_cdn_frontdoor_profile.cdn_frontdoor_profile" -> "module.cdn_frontdoor_profiles.azurecaf_name.cdn_frontdoor_profile";

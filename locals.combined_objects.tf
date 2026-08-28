@@ -42,7 +42,6 @@ locals {
   combined_objects_backup_vaults                                  = merge(tomap({ (local.client_config.landingzone_key) = module.backup_vaults }), lookup(var.remote_objects, "backup_vaults", {}))
   combined_objects_batch_accounts                                 = merge(tomap({ (local.client_config.landingzone_key) = module.batch_accounts }), lookup(var.remote_objects, "batch_accounts", {}))
   combined_objects_batch_applications                             = merge(tomap({ (local.client_config.landingzone_key) = module.batch_applications }), lookup(var.remote_objects, "batch_applications", {}))
-  combined_objects_batch_certificates                             = merge(tomap({ (local.client_config.landingzone_key) = module.batch_certificates }), lookup(var.remote_objects, "batch_certificates", {}))
   combined_objects_batch_jobs                                     = merge(tomap({ (local.client_config.landingzone_key) = module.batch_jobs }), lookup(var.remote_objects, "batch_jobs", {}))
   combined_objects_batch_pools                                    = merge(tomap({ (local.client_config.landingzone_key) = module.batch_pools }), lookup(var.remote_objects, "batch_pools", {}))
   combined_objects_cdn_frontdoor_profiles                         = merge(tomap({ (local.client_config.landingzone_key) = module.cdn_frontdoor_profiles }), lookup(var.remote_objects, "cdn_frontdoor_profiles", {}), lookup(var.data_sources, "cdn_frontdoor_profiles", {}))

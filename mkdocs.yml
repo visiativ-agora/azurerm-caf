@@ -326,7 +326,6 @@ nav:
       - compute_azure_redhat_openshift: root/compute_azure_redhat_openshift.md
       - compute_batch_accounts: root/compute_batch_accounts.md
       - compute_batch_applications: root/compute_batch_applications.md
-      - compute_batch_certificates: root/compute_batch_certificates.md
       - compute_batch_jobs: root/compute_batch_jobs.md
       - compute_batch_pools: root/compute_batch_pools.md
       - compute_container_groups: root/compute_container_groups.md
