@@ -358,7 +358,6 @@ docs/root/compute_availability_sets.md
 docs/root/compute_azure_redhat_openshift.md
 docs/root/compute_batch_accounts.md
 docs/root/compute_batch_applications.md
-docs/root/compute_batch_certificates.md
 docs/root/compute_batch_jobs.md
 docs/root/compute_batch_pools.md
 docs/root/compute_container_groups.md
@@ -1219,7 +1218,6 @@ site/root/compute_availability_sets/index.html
 site/root/compute_azure_redhat_openshift/index.html
 site/root/compute_batch_accounts/index.html
 site/root/compute_batch_applications/index.html
-site/root/compute_batch_certificates/index.html
 site/root/compute_batch_jobs/index.html
 site/root/compute_batch_pools/index.html
 site/root/compute_container_groups/index.html
