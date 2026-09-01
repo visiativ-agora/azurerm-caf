@@ -147,6 +147,14 @@ locals {
         try(var.remote_dns.active_directory_domain_service[obj.key].domain_controller_ip_address, null)
       )
       if contains(["active_directory_domain_service"], obj.resource_type)
+    ],
+    [
+      for obj in try(var.settings.vnet.dns_servers_keys, {}) :
+      coalesce(
+        try(var.remote_dns[obj.resource_type][obj.lz_key][obj.key].private_ip_address, null),
+        try(values(var.remote_dns[obj.resource_type][obj.lz_key])[0].private_ip_address, null)
+      )
+      if contains(["private_dns_resolver_inbound_endpoint", "private_dns_resolver_inbound_endpoints"], obj.resource_type)
     ]
   )
 }
