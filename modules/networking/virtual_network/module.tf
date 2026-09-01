@@ -154,7 +154,7 @@ locals {
         try(var.remote_dns[obj.resource_type][obj.lz_key][obj.key].private_ip_address, null),
         try(values(var.remote_dns[obj.resource_type][obj.lz_key])[0].private_ip_address, null)
       )
-      if contains(["azurerm_private_dns_resolver_inbound_endpoint", "azurerm_private_dns_resolver_inbound_endpoints"], obj.resource_type)
+      if contains(["private_dns_resolver_inbound_endpoint", "private_dns_resolver_inbound_endpoints"], obj.resource_type)
     ]
   )
 }
