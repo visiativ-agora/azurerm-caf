@@ -1,5 +1,5 @@
 resource "azapi_resource" "kfme" {
-  type = "Microsoft.ContainerService/fleets/members@2024-04-01"
+  type = "Microsoft.ContainerService/fleets/members@2026-03-02-preview"
   name = try(
     lower(var.aks_cluster.cluster_name),
     lower(var.aks_cluster.name),
