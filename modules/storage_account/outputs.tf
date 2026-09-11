@@ -81,6 +81,6 @@ output "primary_blob_connection_string" {
   sensitive = true
 }
 
-#output "primary_queue_endpoint" {
-#  value = try(azurerm_storage_account.stg.primary_queue_endpoint, null)
-#}
+output "primary_queue_endpoint" {
+  value = try(azurerm_storage_account.stg.primary_queue_endpoint, null)
+}
