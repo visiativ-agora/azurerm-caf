@@ -43,12 +43,12 @@ resource "azurerm_kusto_cluster" "kusto" {
   # Reference: https://aka.ms/adx.security.vnet.migration
   #language_extensions = try(var.settings.language_extensions, null)
   #In v4.0.0 and later version of the AzureRM Provider, language_extensions will be changed to a list of language_extension block. In each block, name and image are required. name is the name of the language extension, possible values are PYTHON, R. image is the image of the language extension, possible values are Python3_6_5, Python3_10_8 and R.
-  dynamic "language_extensions" {
-    for_each = try(var.settings.language_extensions, null) != null ? [var.settings.language_extensions] : []
+  dynamic "language_extension" {
+    for_each = try(var.settings.language_extension, null) != null ? [var.settings.language_extension] : []
 
     content {
-      name  = language_extensions.value.name
-      image = language_extensions.value.image
+      name  = language_extension.value.name
+      image = language_extension.value.image
     }
   }
 
