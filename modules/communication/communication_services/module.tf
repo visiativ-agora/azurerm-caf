@@ -11,7 +11,7 @@ resource "azurecaf_name" "acs" {
 resource "azurerm_communication_service" "acs" {
   name                = azurecaf_name.acs.result
   resource_group_name = var.resource_group_name
-  data_location       = try(var.settings.data_location, null)
+  data_location       = try(var.settings.data_location, "United States")
   tags                = local.tags
 }
 
