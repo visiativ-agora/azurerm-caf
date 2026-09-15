@@ -25,7 +25,7 @@ resource "azurerm_cosmosdb_account" "cosmos_account" {
   create_mode                        = try(var.settings.create_mode, null)
   public_network_access_enabled      = try(var.settings.public_network_access_enabled, true)
   access_key_metadata_writes_enabled = try(var.settings.access_key_metadata_writes_enabled, null)
-  local_authentication_disabled      = try(var.settings.local_authentication_disabled, null)
+  local_authentication_enabled       = try(var.settings.local_authentication_enabled, null)
   mongo_server_version               = try(var.settings.mongo_server_version, null)
 
   dynamic "consistency_policy" {
