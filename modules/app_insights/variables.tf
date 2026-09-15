@@ -41,8 +41,8 @@ variable "daily_data_cap_in_gb" {
   type        = number
 }
 
-variable "daily_data_cap_notifications_disabled" {
-  description = "(Optional) Specifies if a notification email will be send when the daily data volume cap is met. (set to false to enable)"
+variable "daily_data_cap_notifications_enabled" {
+  description = "(Optional) Whether a notification email will be sent when the daily data volume cap is met. Defaults to true."
   default     = true
   type        = bool
 }
@@ -64,9 +64,15 @@ variable "sampling_percentage" {
   type        = number
 }
 
-variable "disable_ip_masking" {
-  description = "(Optional) By default the real client ip is masked as 0.0.0.0 in the logs. Use this argument to disable masking and log the real client ip. Defaults to false."
-  default     = false
+variable "ip_masking_enabled" {
+  description = "(Optional) By default the real client IP is masked as 0.0.0.0 in the logs. Set this argument to false to disable masking and log the real client IP. Defaults to true."
+  default     = true
+  type        = bool
+}
+
+variable "local_authentication_enabled" {
+  description = "(Optional) Whether Non-Azure AD based Auth is enabled. Defaults to true."
+  default     = true
   type        = bool
 }
 
