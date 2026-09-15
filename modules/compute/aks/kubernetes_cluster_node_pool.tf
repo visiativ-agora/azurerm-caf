@@ -34,7 +34,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "nodepools" {
     for_each = try(each.value.kubelet_config, null) == null ? [] : [1]
     content {
       allowed_unsafe_sysctls    = try(kubelet_config.value.allowed_unsafe_sysctls, null)
-      container_log_max_line    = try(kubelet_config.value.container_log_max_line, null)
+      container_log_max_files   = try(kubelet_config.value.container_log_max_files, null)
       container_log_max_size_mb = try(kubelet_config.value.container_log_max_size_mb, null)
       cpu_cfs_quota_enabled     = try(kubelet_config.value.cpu_cfs_quota_enabled, null)
       cpu_cfs_quota_period      = try(kubelet_config.value.cpu_cfs_quota_period, null)
@@ -84,8 +84,8 @@ resource "azurerm_kubernetes_cluster_node_pool" "nodepools" {
           vm_vfs_cache_pressure              = try(sysctl_config.value.vm_vfs_cache_pressure, null)
         }
       }
-      transparent_huge_page_defrag  = try(linux_os_config.value.transparent_huge_page_defrag, null)
-      transparent_huge_page_enabled = try(linux_os_config.value.transparent_huge_page_enabled, null)
+      transparent_huge_page_defrag = try(linux_os_config.value.transparent_huge_page_defrag, null)
+      transparent_huge_page        = try(linux_os_config.value.transparent_huge_page, null)
     }
   }
 
