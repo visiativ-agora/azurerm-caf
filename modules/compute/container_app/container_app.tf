@@ -42,15 +42,14 @@ resource "azurerm_container_app" "ca" {
           for_each = can(container.value.liveness_probe) ? [container.value.liveness_probe] : []
 
           content {
-            failure_count_threshold          = try(liveness_probe.value.failure_count_threshold, null)
-            host                             = try(liveness_probe.value.host, null)
-            initial_delay                    = try(liveness_probe.value.initial_delay, null)
-            interval_seconds                 = try(liveness_probe.value.interval_seconds, null)
-            path                             = try(liveness_probe.value.path, null)
-            port                             = liveness_probe.value.port
-            termination_grace_period_seconds = try(liveness_probe.value.termination_grace_period_seconds, null)
-            timeout                          = try(liveness_probe.value.timeout, null)
-            transport                        = liveness_probe.value.transport
+            failure_count_threshold = try(liveness_probe.value.failure_count_threshold, null)
+            host                    = try(liveness_probe.value.host, null)
+            initial_delay           = try(liveness_probe.value.initial_delay, null)
+            interval_seconds        = try(liveness_probe.value.interval_seconds, null)
+            path                    = try(liveness_probe.value.path, null)
+            port                    = liveness_probe.value.port
+            timeout                 = try(liveness_probe.value.timeout, null)
+            transport               = liveness_probe.value.transport
 
             dynamic "header" {
               for_each = can(liveness_probe.value.header) ? [liveness_probe.value.header] : []
@@ -91,14 +90,13 @@ resource "azurerm_container_app" "ca" {
           for_each = can(container.value.startup_probe) ? [container.value.startup_probe] : []
 
           content {
-            failure_count_threshold          = try(startup_probe.value.failure_count_threshold, null)
-            host                             = try(startup_probe.value.host, null)
-            interval_seconds                 = try(startup_probe.value.interval_seconds, null)
-            path                             = try(startup_probe.value.path, null)
-            port                             = startup_probe.value.port
-            termination_grace_period_seconds = try(startup_probe.value.termination_grace_period_seconds, null)
-            timeout                          = try(startup_probe.value.timeout, null)
-            transport                        = startup_probe.value.transport
+            failure_count_threshold = try(startup_probe.value.failure_count_threshold, null)
+            host                    = try(startup_probe.value.host, null)
+            interval_seconds        = try(startup_probe.value.interval_seconds, null)
+            path                    = try(startup_probe.value.path, null)
+            port                    = startup_probe.value.port
+            timeout                 = try(startup_probe.value.timeout, null)
+            transport               = startup_probe.value.transport
 
             dynamic "header" {
               for_each = can(startup_probe.value.header) ? [startup_probe.value.header] : []
