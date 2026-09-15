@@ -15,5 +15,6 @@ resource "azurerm_data_factory_linked_service_mysql" "linked_service_mysql" {
   annotations              = try(var.settings.annotations, null)
   parameters               = try(var.settings.parameters, null)
   additional_properties    = try(var.settings.additional_properties, null)
+  driver_version           = try(var.settings.driver_version, "V2")
   connection_string        = var.settings.connection_string
 }
