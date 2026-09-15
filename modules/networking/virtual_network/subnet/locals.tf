@@ -11,4 +11,24 @@ locals {
       ]
     ]) : null
   )
+
+  # azurerm 5.x migration: support both legacy service_endpoints (list of strings)
+  # and new service_endpoint objects with optional network_identifier.
+  service_endpoint_input = coalesce(
+    try(var.settings.service_endpoint, null),
+    try(var.settings.service_endpoints, null),
+    null
+  )
+
+  service_endpoint_blocks = local.service_endpoint_input == null ? [
+    for service in try(var.service_endpoints, []) : {
+      service            = service
+      network_identifier = null
+    }
+    ] : [
+    for endpoint in(can(local.service_endpoint_input.service) ? [local.service_endpoint_input] : local.service_endpoint_input) : {
+      service            = try(endpoint.service, endpoint)
+      network_identifier = try(endpoint.network_identifier, null)
+    }
+  ]
 }
