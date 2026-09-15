@@ -5,8 +5,7 @@ resource "azurerm_private_dns_cname_record" "cname_records" {
   }
 
   name                = each.value.name
-  zone_name           = var.zone_name
-  resource_group_name = var.resource_group_name
+  private_dns_zone_id = var.private_dns_zone_id
   ttl                 = try(each.value.ttl, 300)
   record              = try(each.value.record, null)
   tags                = merge(var.base_tags, try(each.value.tags, {}))
