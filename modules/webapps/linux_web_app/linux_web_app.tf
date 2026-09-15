@@ -73,7 +73,6 @@ resource "azurerm_linux_web_app" "linux_web_app" {
         node_version             = try(application_stack.value.node_version, null)
         php_version              = try(application_stack.value.php_version, null)
         python_version           = try(application_stack.value.python_version, null)
-        ruby_version             = try(application_stack.value.ruby_version, null)
       }
     }
 

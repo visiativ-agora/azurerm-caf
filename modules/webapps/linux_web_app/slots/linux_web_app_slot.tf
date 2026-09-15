@@ -67,7 +67,6 @@ resource "azurerm_linux_web_app_slot" "linux_web_app_slot" {
         node_version             = try(application_stack.value.node_version, null)
         php_version              = try(application_stack.value.php_version, null)
         python_version           = try(application_stack.value.python_version, null)
-        ruby_version             = try(application_stack.value.ruby_version, null)
       }
     }
 
@@ -493,7 +492,7 @@ resource "azurerm_linux_web_app_slot" "linux_web_app_slot" {
       site_config[0].application_stack[0].docker_image_name,
     ]
   }
-  
+
   dynamic "timeouts" {
     for_each = try(var.settings.timeouts, null) == null ? [] : [var.settings.timeouts]
     content {
