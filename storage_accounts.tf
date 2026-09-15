@@ -37,38 +37,35 @@ resource "azurerm_storage_account_customer_managed_key" "cmk" {
   for_each = {
     for key, value in var.storage_accounts : key => value
     if can(value.customer_managed_key) && (
+      try(value.customer_managed_key.key_vault_key_id, null) != null ||
+      try(value.customer_managed_key.managed_hsm_key_id, null) != null ||
       try(value.customer_managed_key.key_vault_id, null) != null ||
       try(value.customer_managed_key.key_vault_uri, null) != null ||
+      try(value.customer_managed_key.key_name, null) != null ||
       try(value.customer_managed_key["keyvault_key"], null) != null
     )
   }
 
   storage_account_id = module.storage_accounts[each.key].id
 
-  key_vault_id = (
-    try(each.value.customer_managed_key.key_vault_uri, null) == null
-    ? coalesce(
-      try(each.value.customer_managed_key.key_vault_id, null),
-      (
-        try(each.value.customer_managed_key["keyvault_key"], null) != null
-        ? local.combined_objects_keyvaults[
-          try(each.value.customer_managed_key.lz_key, local.client_config.landingzone_key)
-        ][try(each.value.customer_managed_key["keyvault_key"], null)].id
-        : null
+  key_vault_key_id = coalesce(
+    try(each.value.customer_managed_key.key_vault_key_id, null),
+    try(each.value.customer_managed_key.managed_hsm_key_id, null),
+    try(local.combined_objects_keyvault_keys[try(each.value.customer_managed_key.lz_key, local.client_config.landingzone_key)][try(each.value.customer_managed_key.keyvault_key_key, each.value.customer_managed_key.keyvault_key)].id, null),
+    (
+      try(each.value.customer_managed_key.key_vault_uri, null) != null && try(each.value.customer_managed_key.key_name, null) != null
+      ? format(
+        "%s/keys/%s%s",
+        trimsuffix(each.value.customer_managed_key.key_vault_uri, "/"),
+        each.value.customer_managed_key.key_name,
+        try(each.value.customer_managed_key.key_version, null) == null ? "" : format("/%s", each.value.customer_managed_key.key_version)
       )
+      : null
     )
-    : null
   )
 
-  key_vault_uri = (
-    try(each.value.customer_managed_key.key_vault_uri, null) != null
-    ? each.value.customer_managed_key.key_vault_uri
-    : null
-  )
-
-  key_name                  = try(each.value.customer_managed_key.key_name, local.combined_objects_keyvault_keys[try(each.value.customer_managed_key.lz_key, local.client_config.landingzone_key)][each.value.customer_managed_key.keyvault_key_key].name)
-  key_version               = try(each.value.customer_managed_key.key_version, null)
-  user_assigned_identity_id = try(local.combined_objects_managed_identities[try(each.value.customer_managed_key.lz_key, local.client_config.landingzone_key)][each.value.customer_managed_key.user_assigned_identity_key].id, null)
+  federated_identity_client_id = try(each.value.customer_managed_key.federated_identity_client_id, null)
+  user_assigned_identity_id    = try(local.combined_objects_managed_identities[try(each.value.customer_managed_key.lz_key, local.client_config.landingzone_key)][each.value.customer_managed_key.user_assigned_identity_key].id, null)
 }
 
 module "encryption_scopes" {

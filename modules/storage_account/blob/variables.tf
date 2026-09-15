@@ -1,9 +1,5 @@
-variable "storage_account_name" {
-  description = "Specifies the name of the Storage Account."
-  type        = string
-}
-variable "storage_container_name" {
-  description = "Specifies the name of the Storage Container."
+variable "storage_container_id" {
+  description = "Specifies the ID of the Storage Container."
   type        = string
 }
 variable "settings" {

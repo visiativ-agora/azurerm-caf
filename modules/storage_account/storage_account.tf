@@ -1,6 +1,9 @@
 locals {
   # Need to update the storage tags if the environment tag is updated with the rover command line
   caf_tags = can(var.storage_account.tags.caf_environment) || can(var.storage_account.tags.environment) ? merge(lookup(var.storage_account, "tags", {}), { "caf_environment" : var.global_settings.environment }) : {}
+
+  # azurerm 5.x no longer accepts TLS1_0/TLS1_1 for min_tls_version.
+  storage_account_min_tls_version = contains(["TLS1_0", "TLS1_1"], try(var.storage_account.min_tls_version, "TLS1_2")) ? "TLS1_2" : try(var.storage_account.min_tls_version, "TLS1_2")
 }
 
 # naming convention
@@ -29,7 +32,7 @@ resource "azurerm_storage_account" "stg" {
   infrastructure_encryption_enabled = try(var.storage_account.infrastructure_encryption_enabled, null)
   large_file_share_enabled          = try(var.storage_account.large_file_share_enabled, null)
   location                          = local.location
-  min_tls_version                   = try(var.storage_account.min_tls_version, "TLS1_2")
+  min_tls_version                   = local.storage_account_min_tls_version
   is_hns_enabled                    = try(var.storage_account.is_hns_enabled, false)
   sftp_enabled                      = try(var.storage_account.sftp_enabled, null)
   nfsv3_enabled                     = try(var.storage_account.nfsv3_enabled, false)
@@ -142,57 +145,57 @@ resource "azurerm_storage_account" "stg" {
     }
   }
 
-  dynamic "queue_properties" {
-    for_each = lookup(var.storage_account, "queue_properties", false) == false ? [] : [1]
+  # dynamic "queue_properties" {
+  #   for_each = lookup(var.storage_account, "queue_properties", false) == false ? [] : [1]
 
-    content {
-      dynamic "cors_rule" {
-        for_each = lookup(var.storage_account.queue_properties, "cors_rule", false) == false ? [] : [1]
+  #   content {
+  #     dynamic "cors_rule" {
+  #       for_each = lookup(var.storage_account.queue_properties, "cors_rule", false) == false ? [] : [1]
 
-        content {
-          allowed_headers    = var.storage_account.queue_properties.cors_rule.allowed_headers
-          allowed_methods    = var.storage_account.queue_properties.cors_rule.allowed_methods
-          allowed_origins    = var.storage_account.queue_properties.cors_rule.allowed_origins
-          exposed_headers    = var.storage_account.queue_properties.cors_rule.exposed_headers
-          max_age_in_seconds = var.storage_account.queue_properties.cors_rule.max_age_in_seconds
-        }
-      }
+  #       content {
+  #         allowed_headers    = var.storage_account.queue_properties.cors_rule.allowed_headers
+  #         allowed_methods    = var.storage_account.queue_properties.cors_rule.allowed_methods
+  #         allowed_origins    = var.storage_account.queue_properties.cors_rule.allowed_origins
+  #         exposed_headers    = var.storage_account.queue_properties.cors_rule.exposed_headers
+  #         max_age_in_seconds = var.storage_account.queue_properties.cors_rule.max_age_in_seconds
+  #       }
+  #     }
 
-      dynamic "logging" {
-        for_each = lookup(var.storage_account.queue_properties, "logging", false) == false ? [] : [1]
+  #     dynamic "logging" {
+  #       for_each = lookup(var.storage_account.queue_properties, "logging", false) == false ? [] : [1]
 
-        content {
-          delete                = var.storage_account.queue_properties.logging.delete
-          read                  = var.storage_account.queue_properties.logging.read
-          write                 = var.storage_account.queue_properties.logging.write
-          version               = var.storage_account.queue_properties.logging.version
-          retention_policy_days = try(var.storage_account.queue_properties.logging.retention_policy_days, 7)
-        }
-      }
+  #       content {
+  #         delete                = var.storage_account.queue_properties.logging.delete
+  #         read                  = var.storage_account.queue_properties.logging.read
+  #         write                 = var.storage_account.queue_properties.logging.write
+  #         version               = var.storage_account.queue_properties.logging.version
+  #         retention_policy_days = try(var.storage_account.queue_properties.logging.retention_policy_days, 7)
+  #       }
+  #     }
 
-      dynamic "minute_metrics" {
-        for_each = lookup(var.storage_account.queue_properties, "minute_metrics", false) == false ? [] : [1]
+  #     dynamic "minute_metrics" {
+  #       for_each = lookup(var.storage_account.queue_properties, "minute_metrics", false) == false ? [] : [1]
 
-        content {
-          enabled               = var.storage_account.queue_properties.minute_metrics.enabled
-          version               = var.storage_account.queue_properties.minute_metrics.version
-          include_apis          = try(var.storage_account.queue_properties.minute_metrics.include_apis, null)
-          retention_policy_days = try(var.storage_account.queue_properties.minute_metrics.retention_policy_days, 7)
-        }
-      }
+  #       content {
+  #         enabled               = var.storage_account.queue_properties.minute_metrics.enabled
+  #         version               = var.storage_account.queue_properties.minute_metrics.version
+  #         include_apis          = try(var.storage_account.queue_properties.minute_metrics.include_apis, null)
+  #         retention_policy_days = try(var.storage_account.queue_properties.minute_metrics.retention_policy_days, 7)
+  #       }
+  #     }
 
-      dynamic "hour_metrics" {
-        for_each = lookup(var.storage_account.queue_properties, "hour_metrics", false) == false ? [] : [1]
+  #     dynamic "hour_metrics" {
+  #       for_each = lookup(var.storage_account.queue_properties, "hour_metrics", false) == false ? [] : [1]
 
-        content {
-          enabled               = var.storage_account.queue_properties.hour_metrics.enabled
-          version               = var.storage_account.queue_properties.hour_metrics.version
-          include_apis          = try(var.storage_account.queue_properties.hour_metrics.include_apis, null)
-          retention_policy_days = try(var.storage_account.queue_properties.hour_metrics.retention_policy_days, 7)
-        }
-      }
-    }
-  }
+  #       content {
+  #         enabled               = var.storage_account.queue_properties.hour_metrics.enabled
+  #         version               = var.storage_account.queue_properties.hour_metrics.version
+  #         include_apis          = try(var.storage_account.queue_properties.hour_metrics.include_apis, null)
+  #         retention_policy_days = try(var.storage_account.queue_properties.hour_metrics.retention_policy_days, 7)
+  #       }
+  #     }
+  #   }
+  # }
 
   dynamic "network_rules" {
     for_each = lookup(var.storage_account, "network", null) == null ? [] : [1]
@@ -286,8 +289,8 @@ module "queue" {
   source   = "./queue"
   for_each = try(var.storage_account.queues, {})
 
-  storage_account_id   = azurerm_storage_account.stg.id
-  settings             = each.value
+  storage_account_id = azurerm_storage_account.stg.id
+  settings           = each.value
 }
 
 module "container" {
