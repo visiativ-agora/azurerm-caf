@@ -1,3 +1,34 @@
+locals {
+  # Keep backward compatibility with pre-5.x flat NIC fields by normalizing
+  # both legacy and new-style input into the provider 5.x ip_configuration block.
+  replication_target_subnet_name = can(var.settings.replication.target.network.subnet_name) ? var.settings.replication.target.network.subnet_name : var.vnets[try(var.settings.replication.target.network.lz_key, var.client_config.landingzone_key)][var.settings.replication.target.network.vnet_key].subnets[var.settings.replication.target.network.subnet_key].name
+
+  replication_test_subnet_name = can(var.settings.replication.target.test_network.subnet_name) ? var.settings.replication.target.test_network.subnet_name : var.vnets[try(var.settings.replication.target.test_network.lz_key, var.client_config.landingzone_key)][var.settings.replication.target.test_network.vnet_key].subnets[var.settings.replication.target.test_network.subnet_key].name
+
+  normalized_network_interfaces = {
+    for nic_key, nic in var.virtual_machine_nics : nic_key => {
+      source_network_interface_id = nic.id
+      ip_configurations = length(try(nic.ip_configuration, [])) > 0 ? nic.ip_configuration : [
+        {
+          name = coalesce(
+            try(var.settings.replication.target.network_interface.ip_configuration_name, null),
+            try(values(nic.ip_configurations)[0].name, null),
+            try(values(nic.ip_configuration)[0].name, null),
+            format("ipconfig-%s", tostring(nic_key))
+          )
+          target_subnet_name                              = local.replication_target_subnet_name
+          failover_test_subnet_name                       = local.replication_test_subnet_name
+          target_static_ip                                = try(var.settings.replication.target.network_interface.target_static_ip, null)
+          failover_test_static_ip                         = try(var.settings.replication.target.network_interface.failover_test_static_ip, null)
+          recovery_public_ip_address_id                   = try(var.settings.replication.target.network_interface.recovery_public_ip_address_id, null)
+          failover_test_public_ip_address_id              = try(var.settings.replication.target.network_interface.failover_test_public_ip_address_id, null)
+          recovery_load_balancer_backend_address_pool_ids = try(var.settings.replication.target.network_interface.recovery_load_balancer_backend_address_pool_ids, null)
+        }
+      ]
+    }
+  }
+}
+
 resource "azurerm_site_recovery_replicated_vm" "replication" {
   count = try(var.settings.replication, null) == null ? 0 : 1
 
@@ -101,11 +132,23 @@ resource "azurerm_site_recovery_replicated_vm" "replication" {
   }
 
   dynamic "network_interface" {
-    for_each = var.virtual_machine_nics
+    for_each = local.normalized_network_interfaces
     content {
-      source_network_interface_id = network_interface.value.id
-      target_subnet_name          = can(var.settings.replication.target.network.subnet_name) ? var.settings.replication.target.network.subnet_name : var.vnets[try(var.settings.replication.target.network.lz_key, var.client_config.landingzone_key)][var.settings.replication.target.network.vnet_key].subnets[var.settings.replication.target.network.subnet_key].name
-      failover_test_subnet_name   = can(var.settings.replication.target.test_network.subnet_name) ? var.settings.replication.target.test_network.subnet_name : var.vnets[try(var.settings.replication.target.test_network.lz_key, var.client_config.landingzone_key)][var.settings.replication.target.test_network.vnet_key].subnets[var.settings.replication.target.test_network.subnet_key].name
+      source_network_interface_id = network_interface.value.source_network_interface_id
+
+      dynamic "ip_configuration" {
+        for_each = try(network_interface.value.ip_configurations, [])
+        content {
+          name                                            = ip_configuration.value.name
+          target_subnet_name                              = try(ip_configuration.value.target_subnet_name, local.replication_target_subnet_name)
+          failover_test_subnet_name                       = try(ip_configuration.value.failover_test_subnet_name, local.replication_test_subnet_name)
+          target_static_ip                                = try(ip_configuration.value.target_static_ip, null)
+          failover_test_static_ip                         = try(ip_configuration.value.failover_test_static_ip, null)
+          recovery_public_ip_address_id                   = try(ip_configuration.value.recovery_public_ip_address_id, null)
+          failover_test_public_ip_address_id              = try(ip_configuration.value.failover_test_public_ip_address_id, null)
+          recovery_load_balancer_backend_address_pool_ids = try(ip_configuration.value.recovery_load_balancer_backend_address_pool_ids, null)
+        }
+      }
     }
   }
 
