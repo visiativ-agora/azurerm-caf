@@ -14,7 +14,7 @@ resource "azurerm_bot_service_azure_bot" "bot_service" {
   icon_url                              = try(var.settings.icon_url, null)
   microsoft_app_msi_id                  = try(var.settings.microsoft_app_msi_id, null)
   microsoft_app_tenant_id               = try(var.settings.microsoft_app_tenant_id, null)
-  microsoft_app_type                    = try(var.settings.microsoft_app_type, null)
+  microsoft_app_type                    = var.settings.microsoft_app_type
   local_authentication_enabled          = try(var.settings.local_authentication_enabled, true)
   luis_app_ids                          = try(var.settings.luis_app_ids, null)
   luis_key                              = try(var.settings.luis_key, null)
