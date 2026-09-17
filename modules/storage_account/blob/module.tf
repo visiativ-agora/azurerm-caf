@@ -34,11 +34,16 @@ resource "random_id" "md5" {
 locals {
   md5_content = local.source != null ? filebase64sha512(local.source) : sha512(local.source_content)
 
-  _source_var_folder_path = can(format("%s/%s", var.var_folder_path, var.settings.source)) ? fileexists(format("%s/%s", var.var_folder_path, var.settings.source)) ? format("%s/%s", var.var_folder_path, var.settings.source) : null : null
-
   _source_direct = can(var.settings.source) ? var.settings.source : null
 
-  source = can(coalesce(local._source_var_folder_path, local._source_direct)) ? coalesce(local._source_var_folder_path, local._source_direct) : null
+  _source_candidates = compact(distinct([
+    local._source_direct,
+    can(format("%s/%s", var.var_folder_path, local._source_direct)) ? format("%s/%s", var.var_folder_path, local._source_direct) : null,
+    can(format("%s/%s", abspath(var.var_folder_path), local._source_direct)) ? format("%s/%s", abspath(var.var_folder_path), local._source_direct) : null,
+    can(format("%s/%s/%s", path.cwd, var.var_folder_path, local._source_direct)) ? format("%s/%s/%s", path.cwd, var.var_folder_path, local._source_direct) : null
+  ]))
+
+  source = try([for source_candidate in local._source_candidates : abspath(source_candidate) if fileexists(source_candidate)][0], local._source_direct)
 
   source_content = can(var.settings.source_content) ? var.settings.source_content : null
 }
