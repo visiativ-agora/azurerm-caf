@@ -51,9 +51,10 @@ resource "azurerm_application_gateway" "agw" {
   dynamic "ssl_profile" {
     for_each = try(var.settings.ssl_profiles, {})
     content {
-      name                             = ssl_profile.value.name
-      trusted_client_certificate_names = try(ssl_profile.trusted_client_certificate_names, null)
-      verify_client_cert_issuer_dn     = try(ssl_profile.verify_client_cert_issuer_dn, null)
+      name                                 = ssl_profile.value.name
+      trusted_client_certificate_names     = try(ssl_profile.trusted_client_certificate_names, null)
+      verify_client_certificate_issuer_dn  = try(ssl_profile.verify_client_cert_issuer_dn, null)
+      verify_client_certificate_revocation = try(ssl_profile.verify_client_certificate_revocation, null)
 
       dynamic "ssl_policy" {
         for_each = try(ssl_profile.value.ssl_policy, null) == null ? [] : [ssl_profile.value.ssl_policy]
