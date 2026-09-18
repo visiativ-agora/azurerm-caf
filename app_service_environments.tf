@@ -34,6 +34,7 @@ module "app_service_environments_v3" {
 
   global_settings     = local.global_settings
   settings            = each.value
+  client_config       = local.client_config
   subnet_id           = can(each.value.subnet_id) ? each.value.subnet_id : local.combined_objects_networking[try(each.value.lz_key, local.client_config.landingzone_key)][each.value.vnet_key].subnets[each.value.subnet_key].id
   diagnostic_profiles = try(each.value.diagnostic_profiles, {})
   diagnostics         = local.combined_diagnostics
