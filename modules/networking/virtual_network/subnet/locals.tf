@@ -21,12 +21,12 @@ locals {
       service            = service
       network_identifier = null
     }
-  ] : can(local.service_endpoint_input.service) ? [
+    ] : can(local.service_endpoint_input.service) ? [
     {
       service            = local.service_endpoint_input.service
       network_identifier = try(local.service_endpoint_input.network_identifier, null)
     }
-  ] : [
+    ] : [
     for endpoint in local.service_endpoint_input : {
       service            = try(endpoint.service, endpoint)
       network_identifier = try(endpoint.network_identifier, null)
