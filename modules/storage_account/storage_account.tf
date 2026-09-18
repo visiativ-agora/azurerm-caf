@@ -40,7 +40,7 @@ resource "azurerm_storage_account" "stg" {
   resource_group_name               = local.resource_group_name
   table_encryption_key_type         = try(var.storage_account.table_encryption_key_type, null)
   tags                              = merge(local.tags, try(var.storage_account.tags, null), local.caf_tags)
-  public_network_access_enabled     = try(var.storage_account.public_network_access_enabled, null)
+  public_network_access             = try(var.storage_account.public_network_access_enabled, var.storage_account.public_network_access, null)
   shared_access_key_enabled         = try(var.storage_account.shared_access_key_enabled, true)
   default_to_oauth_authentication   = try(var.storage_account.default_to_oauth_authentication, false)
   dns_endpoint_type                 = try(var.storage_account.dns_endpoint_type, "Standard")
