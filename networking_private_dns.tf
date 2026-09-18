@@ -29,9 +29,10 @@ module "private_dns_records" {
   for_each   = try(local.networking.private_dns_records, {})
   depends_on = [module.private_dns]
 
-  base_tags     = {}
-  client_config = local.client_config
-  records       = each.value.records
+  base_tags           = {}
+  client_config       = local.client_config
+  private_dns_zone_id = can(each.value.private_dns.id) ? each.value.private_dns.id : local.combined_objects_private_dns[try(each.value.private_dns.lz_key, local.client_config.landingzone_key)][each.value.private_dns.key].id
+  records             = each.value.records
 }
 
 
