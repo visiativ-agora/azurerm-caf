@@ -106,14 +106,11 @@ resource "azurerm_kubernetes_cluster" "aks" {
     kubelet_disk_type = try(var.settings.default_node_pool.kubelet_disk_type, null)
     max_pods          = try(var.settings.default_node_pool.max_pods, 30)
 
-    dynamic "node_provisioning_profile" {
-      for_each = try(var.settings.node_provisioning_profile, null) == null ? [] : [var.settings.node_provisioning_profile]
-
-      content {
-        default_node_pools = try(node_provisioning_profile.value.default_node_pools, null)
-        mode               = try(node_provisioning_profile.value.mode, null)
-      }
+    node_provisioning_profile {
+      default_node_pools = try(var.settings.default_node_pool.node_provisioning_profile.default_node_pools, var.settings.node_provisioning_profile.default_node_pools, "Auto")
+      mode               = try(var.settings.default_node_pool.node_provisioning_profile.mode, var.settings.node_provisioning_profile.mode, "Manual")
     }
+
     dynamic "node_network_profile" {
       for_each = try(var.settings.default_node_pool.node_network_profile, null) == null ? [] : [var.settings.default_node_pool.node_network_profile]
 
