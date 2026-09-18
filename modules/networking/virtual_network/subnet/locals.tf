@@ -17,19 +17,24 @@ locals {
   service_endpoint_input = try(var.settings.service_endpoint, null) != null ? try(var.settings.service_endpoint, null) : try(var.settings.service_endpoints, null)
 
   service_endpoint_blocks = local.service_endpoint_input == null ? [
-    for service in try(var.service_endpoints, []) : {
+    for service in sort(try(var.service_endpoints, [])) : {
       service            = service
       network_identifier = null
     }
-    ] : can(local.service_endpoint_input.service) ? [
+  ] : can(local.service_endpoint_input.service) ? [
     {
       service            = local.service_endpoint_input.service
       network_identifier = try(local.service_endpoint_input.network_identifier, null)
     }
-    ] : [
+  ] : can(local.service_endpoint_input[0].service) ? [
     for endpoint in local.service_endpoint_input : {
       service            = try(endpoint.service, endpoint)
       network_identifier = try(endpoint.network_identifier, null)
+    }
+  ] : [
+    for service in sort(local.service_endpoint_input) : {
+      service            = service
+      network_identifier = null
     }
   ]
 }
