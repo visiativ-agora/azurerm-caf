@@ -106,11 +106,6 @@ resource "azurerm_kubernetes_cluster" "aks" {
     kubelet_disk_type = try(var.settings.default_node_pool.kubelet_disk_type, null)
     max_pods          = try(var.settings.default_node_pool.max_pods, 30)
 
-    node_provisioning_profile {
-      default_node_pools = try(var.settings.default_node_pool.node_provisioning_profile.default_node_pools, var.settings.node_provisioning_profile.default_node_pools, "Auto")
-      mode               = try(var.settings.default_node_pool.node_provisioning_profile.mode, var.settings.node_provisioning_profile.mode, "Manual")
-    }
-
     dynamic "node_network_profile" {
       for_each = try(var.settings.default_node_pool.node_network_profile, null) == null ? [] : [var.settings.default_node_pool.node_network_profile]
 
@@ -159,6 +154,12 @@ resource "azurerm_kubernetes_cluster" "aks" {
     min_count        = try(var.settings.default_node_pool.auto_scaling_enabled, false) == false ? null : try(var.settings.default_node_pool.min_count, null)
     node_count       = try(var.settings.default_node_pool.node_count, null)
   }
+
+  node_provisioning_profile {
+    default_node_pools = try(var.settings.node_provisioning_profile.default_node_pools, var.settings.default_node_pool.node_provisioning_profile.default_node_pools, "Auto")
+    mode               = try(var.settings.node_provisioning_profile.mode, var.settings.default_node_pool.node_provisioning_profile.mode, "Manual")
+  }
+
   dns_prefix                 = try(var.settings.dns_prefix, try(var.settings.dns_prefix_private_cluster, random_string.prefix.result))
   dns_prefix_private_cluster = try(var.settings.dns_prefix_private_cluster, null)
   dynamic "aci_connector_linux" {
