@@ -37,7 +37,7 @@ output "mysql_flexible_server_name" {
 
 output "mysql_flexible_server_public_network_access_enabled" {
   description = "Is public network access enabled?"
-  value       = azurerm_mysql_flexible_server.mysql.public_network_access_enabled
+  value       = azurerm_mysql_flexible_server.mysql.public_network_access
 }
 
 output "mysql_flexible_server_configuration_id" {
