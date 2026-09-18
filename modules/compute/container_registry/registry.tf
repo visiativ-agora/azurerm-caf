@@ -39,8 +39,9 @@ resource "azurerm_container_registry" "acr" {
     for_each = try(var.georeplications, {})
 
     content {
-      location = var.global_settings.regions[georeplications.key]
-      tags     = try(georeplications.value.tags)
+      location                        = var.global_settings.regions[georeplications.key]
+      global_endpoint_routing_enabled = try(georeplications.value.global_endpoint_routing_enabled, true)
+      tags                            = try(georeplications.value.tags)
     }
   }
 }
