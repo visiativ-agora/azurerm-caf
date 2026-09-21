@@ -9,17 +9,29 @@ resource "time_sleep" "delay" {
   create_duration = try(each.value.dealy.create_duration, "300s")
 }
 
+locals {
+  storage_account_blobs_storage_account_key = {
+    for blob_key, blob in local.storage.storage_account_blobs : blob_key => try(
+      blob.storage_account_key,
+      blob.storage_account.key,
+      one([
+        for storage_account_key, storage_account in local.combined_objects_storage_accounts[try(blob.storage_account.lz_key, local.client_config.landingzone_key)] : storage_account_key
+        if can(storage_account.containers[blob.storage_container.key])
+      ])
+    )
+  }
+}
+
 module "storage_account_blobs" {
   source     = "./modules/storage_account/blob"
   depends_on = [time_sleep.delay]
   for_each   = local.storage.storage_account_blobs
 
-
   storage_container_id = can(each.value.storage_container_name) ? format(
     "%s/blobServices/default/containers/%s",
-    module.storage_accounts[try(each.value.storage_account_key, each.value.storage_account.key)].id,
+    local.combined_objects_storage_accounts[try(each.value.storage_account.lz_key, local.client_config.landingzone_key)][local.storage_account_blobs_storage_account_key[each.key]].id,
     each.value.storage_container_name
-  ) : local.combined_objects_storage_containers[try(each.value.storage_container.lz_key, local.client_config.landingzone_key)][each.value.storage_container.key].id
+  ) : local.combined_objects_storage_accounts[try(each.value.storage_account.lz_key, local.client_config.landingzone_key)][local.storage_account_blobs_storage_account_key[each.key]].containers[each.value.storage_container.key].id
   settings        = each.value
   var_folder_path = var.var_folder_path
 }
