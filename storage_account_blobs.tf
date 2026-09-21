@@ -15,9 +15,13 @@ module "storage_account_blobs" {
   for_each   = local.storage.storage_account_blobs
 
 
-  storage_container_id = module.storage_accounts[each.value.storage_account_key].id
-  settings             = each.value
-  var_folder_path      = var.var_folder_path
+  storage_container_id = can(each.value.storage_container_name) ? format(
+    "%s/blobServices/default/containers/%s",
+    module.storage_accounts[try(each.value.storage_account_key, each.value.storage_account.key)].id,
+    each.value.storage_container_name
+  ) : local.combined_objects_storage_containers[try(each.value.storage_container.lz_key, local.client_config.landingzone_key)][each.value.storage_container.key].id
+  settings        = each.value
+  var_folder_path = var.var_folder_path
 }
 
 output "storage_account_blobs" {
