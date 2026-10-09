@@ -50,6 +50,15 @@ resource "azurerm_eventgrid_event_subscription" "eges" {
   }
   included_event_types = try(var.settings.included_event_types, null)
 
+  dynamic "subject_filter" {
+    for_each = try(var.settings.subject_filter, null) != null ? [var.settings.subject_filter] : []
+    content {
+      subject_begins_with = try(subject_filter.value.subject_begins_with, null)
+      subject_ends_with   = try(subject_filter.value.subject_ends_with, null)
+      case_sensitive      = try(subject_filter.value.case_sensitive, null)
+    }
+  }
+
   dynamic "advanced_filter" {
     for_each = try(var.settings.advanced_filter, null) != null ? [var.settings.advanced_filter] : []
     content {
